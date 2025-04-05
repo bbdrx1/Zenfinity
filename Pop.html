@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error Message Example</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #errorMessage {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      padding: 20px;
+      background-color: #f44336;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+    }
+
+    #errorMessage h2 {
+      margin-top: 0;
+    }
+
+    #errorMessage p {
+      margin-bottom: 20px;
+    }
+
+    #closeErrorBtn {
+      background-color: #fff;
+      color: #f44336;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    #closeErrorBtn:hover {
+      background-color: #f44336;
+      color: #fff;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("closeErrorBtn").addEventListener("click", function() {
+        document.getElementById("errorMessage").style.display = "none";
+      });
+
+      // Show the error message immediately on page load
+      document.getElementById("errorMessage").style.display = "block";
+    });
+  </script>
+</head>
+<body>
+  <div id="errorMessage">
+    <h2>Error!</h2>
+    <p>There was an error processing your request.</p>
+    <button id="closeErrorBtn">Close</button>
+  </div>
+</body>
+</html>

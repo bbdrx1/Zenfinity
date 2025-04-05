@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenfinity</title>
+    <link rel="icon" href="Zenfinity Logo.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="Zenfinity Logo.ico" type="image/x-icon">
+
+    <style>
+        /* Add styles for the notification */
+        #notification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #F0FBFF;
+            border: 2px solid #475053;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 999;
+        }
+
+        #notification.show {
+            display: block;
+        }
+
+        body {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to left, #0099ff, #89d0ff);
+        }
+
+        .login-form {
+            width: 300px;
+            padding: 20px;
+            border: 2px solid #475053;
+            border-radius: 4px;
+            background-color: #F0FBFF;
+            border-radius: 10px;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: 80%;
+            padding: 5px;
+            margin-bottom: 20px;
+            padding-left: 30px;
+            background-repeat: no-repeat;
+            background-position: 5px center;
+            background-size: 20px 20px;
+            border-radius: 10px;
+            font-family: Bahnschrift SemiBold;
+        }
+
+        .login-form input[type="text"] {
+            background-image: url("user icon.png");
+        }
+
+        .login-form input[type="password"] {
+            background-image: url("lock icon.png");
+        }
+
+        .login-form input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #89d0ff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 40%;
+            border-radius: 10px;
+            font-family: Bahnschrift SemiBold;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-form input[type="submit"]:hover {
+            background-color: #4ea0d6;
+        }
+
+        .login-image {
+            text-align: center;
+        }
+
+        .login-image img {
+            width: 75px;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+		
+		 #notification p {
+        color: red; 
+        font-size: 50px; 
+        margin: 0;
+		font-family: Bahnschrift SemiBold;
+    }
+		
+    </style>
+</head>
+<body>
+
+<!-- Add the notification container -->
+<div id="notification" class="<?php echo isset($_GET['error']) ? 'show' : ''; ?>">
+    <p><?php echo isset($_GET['error']) ? urldecode($_GET['error']) : ''; ?></p>
+</div>
+
+<div class="login-form">
+    <div class="login-image">
+        <img src="Zenfinity Logo.jpg" alt="Login Image">
+        <form method="POST" action="process.php">
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+</div>
+
+<script>
+    // Display the notification if there's an error parameter in the URL
+    window.addEventListener('DOMContentLoaded', function () {
+        const errorParam = new URLSearchParams(window.location.search).get('error');
+        const notification = document.getElementById('notification');
+        const notificationText = notification.querySelector('p');
+
+        if (errorParam) {
+            notificationText.innerText = decodeURIComponent(errorParam);
+            notification.classList.add('show');
+            setTimeout(function () {
+                // Hide the notification after 3 seconds
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    });
+</script>
+</body>
+</html>
