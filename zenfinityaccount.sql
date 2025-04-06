@@ -32,7 +32,7 @@ CREATE TABLE `archiveaccount` (
   `username` varchar(25) NOT NULL,
   `password` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
-  `type` varchar(50) NOT NULL
+  `type` ENUM('admin', 'customer', 'supplier') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -40,15 +40,10 @@ CREATE TABLE `archiveaccount` (
 --
 
 INSERT INTO `archiveaccount` (`ID`, `username`, `password`, `Email`, `type`) VALUES
-(27, 'renato', 'cac036e2a615b8d38c8534e75f44cb7c', '', 'Admin'),
-(25, 'Renato', 'e2c25b2e85b92e33a9cfd6a75a64860e', '', 'Admin'),
-(38, 'example', '1a79a4d60de6718e8e5b326e338ae533', '', 'User'),
-(39, 'NATOY', 'b76e79670751dbaea6fe173f23ece013', '', 'User'),
-(42, 'tabora', 'cac036e2a615b8d38c8534e75f44cb7c', 'acfwvces2@gmail.com', 'User'),
-(40, 'tabora', '36b92df28ee9b4ac5665121ffe7528ce', '', 'Admin'),
-(41, 'tabora', '990735d2253d36bbb606757d76b7ed4d', '', 'User'),
-(32, 'Ate Wendy', 'e93d6bb8e1a7903dffb0968143b82991', '', 'User'),
-(26, 'Renato', 'e2c25b2e85b92e33a9cfd6a75a64860e', '', 'Admin');
+(4, 'archive_test_customer', '123', '', 'customer'),
+(5, 'archive_test_admin', '123', '', 'admin'),
+(6, 'archive_test_supplier', '123', '', 'supplier');
+
 
 -- --------------------------------------------------------
 
@@ -244,21 +239,16 @@ CREATE TABLE `user` (
   `username` varchar(25) NOT NULL,
   `password` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
-  `type` varchar(50) NOT NULL
+  `type` ENUM('admin', 'customer', 'supplier') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `user`
 --
 
 INSERT INTO `user` (`ID`, `username`, `password`, `Email`, `type`) VALUES
-(1, 'Admin Tabora', 'a50bc9bdf224ef31de1fa35b78dbb1fc', '', 'admin'),
-(34, 'demoUser', 'aa9002fda8075cc8e3522e667f38723e', '', 'User'),
-(36, 'Ate Wendy', '34c0200ecd6bfc8505b54ceeadf448b8', '', 'User'),
-(44, 'Admin Wendy', 'a50bc9bdf224ef31de1fa35b78dbb1fc', 'wendy@gmail.com', 'User'),
-(46, 'Admin Natoy', '70118837ec057a3c1bfe4b289ed28c01', 'renato.tabora@cdsp.edu.ph', 'Admin'),
-(47, 'Natoy', '7d6068285aa63888269fba64d9565e4a', 'sadasdasd@gamil.com', 'User'),
-(48, 'User Natoy', '70118837ec057a3c1bfe4b289ed28c01', 'aslcjropiweuvct@gmail.com', 'User');
+(1, 'test_admin', 'test123', 'test123@gmail.com', 'admin'),
+(2, 'test_customer', 'test123', 'test123@gmail.com', 'customer'),
+(3, 'test_supplier', 'test123', 'test123@gmail.com', 'supplier');
 
 --
 -- Indexes for dumped tables

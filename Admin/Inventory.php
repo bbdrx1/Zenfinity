@@ -1,14 +1,49 @@
 <?php
 include("navigation.php");
 ?>
-
 <div id="content" class="p-4 p-md-5 pt-5">
     <h2 class="mb-4">Add to Inventory</h2>
-    <form method="POST" id="qrForm">
-        <input type="text" name="qr_data" id="qrData" placeholder="Scan QR Code">
-        <button id="enterButton">Add Item to Inventory</button>
-    </form>
-    <br>
+
+    <!-- Button to trigger the popup form -->
+    <button id="openFormButton">Add Item to Inventory</button>
+    <br><br>
+
+    <!-- Popup Form -->
+    <div id="popupForm" class="popup-form">
+        <div class="form-container">
+            <span class="close-button">&times;</span>
+            <h3>Add New Item</h3>
+            <form method="POST" id="addItemForm">
+                <label for="productName">Product Name:</label>
+                <input type="text" name="productName" id="productName" placeholder="Enter Product Name" required><br><br>
+
+                <label for="productType">Product Type:</label>
+                <input type="text" name="productType" id="productType" placeholder="Enter Product Type" required><br><br>
+
+                <label for="color">Color:</label>
+                <input type="text" name="color" id="color" placeholder="Enter Color" required><br><br>
+
+                <label for="description">Description:</label>
+                <input type="text" name="description" id="description" placeholder="Enter Description" required><br><br>
+
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" id="quantity" placeholder="Enter Quantity" required><br><br>
+
+                <label for="price">Price:</label>
+                <input type="number" name="price" id="price" placeholder="Enter Price" required><br><br>
+
+                <label for="entryDate">Entry Date:</label>
+                <input type="date" name="entryDate" id="entryDate" required><br><br>
+
+                <label for="entryTime">Entry Time:</label>
+                <input type="time" name="entryTime" id="entryTime" required><br><br>
+
+                <button type="submit" name="addItem">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer Data Form -->
     <form method="POST" action="transfer_data.php" id="transferForm">
         <button id="transferButton" type="submit" name="transfer_data">Transfer to TheInventory</button>
     </form>
@@ -19,9 +54,40 @@ include("navigation.php");
             background-color: #66c1ff;
         }
 
-        .posted-data {
-            margin-left: 50px;
-            margin-right: 50px;
+        .popup-form {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent background */
+        }
+
+        .form-container {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            text-align: center;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
         }
 
         .table-container {
@@ -35,19 +101,19 @@ include("navigation.php");
             background-color: #089cfc;
         }
 
-        th, td {
+        th,
+        td {
             padding: 10px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid #ddd;
             color: white;
-            text-align: center;
         }
 
         th {
             background-color: #475053;
             color: white;
             position: sticky;
-            top: 0; /* Fixed position for the table header */
+            top: 0;
         }
 
         tr:hover {
@@ -60,6 +126,12 @@ include("navigation.php");
             font-size: 24px;
             font-weight: bold;
         }
+
+        .edit-mode input[type="number"],
+        .edit-mode input[type="text"] {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
     </style>
 
     <?php
@@ -68,71 +140,79 @@ include("navigation.php");
     $username = "root"; // Replace with your database username
     $password = ""; // Replace with your database password
     $database = "zenfinityaccount";
-
     $conn = mysqli_connect($host, $username, $password, $database);
-
     if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
     }
 
-    function addDataToDatabase($conn, $data) {
-        // Split the comma-separated data into an array
-        $dataArray = explode(',', $data);
+    function addDataToDatabase($conn, $productName, $productType, $color, $description, $quantity, $price, $entryDate, $entryTime)
+    {
+        // Combine entry date and time into a single timestamp
+        $entryTimestamp = $entryDate . ' ' . $entryTime;
 
-        if (count($dataArray) >= 7) { // Assuming quantity is the 6th element and price is the 7th element in the QR data
-            $product_id = $dataArray[0];
-            $product_name = $dataArray[1];
-            $productType = $dataArray[2];
-            $color = $dataArray[3]; // Extract the color
-            $description = $dataArray[4];
-            $quantity = $dataArray[5]; // Extract the quantity
-            $price = $dataArray[6]; // Extract the price
-
-            // Check if the ProductID exists in the Product table
-            $productQuery = "SELECT * FROM Product WHERE ProductID = '$product_id'";
-            $productResult = mysqli_query($conn, $productQuery);
-
-            if (mysqli_num_rows($productResult) > 0) {
-                // ProductID exists, proceed with inserting into Inventory
-                // Get the current date and time
-                $entryTimestamp = date("Y-m-d H:i:s");
-
-                $sql = "INSERT INTO Inventory (InventoryID, ProductID, ProductName, ProductType, Color, Description, Quantity, Price, EntryTimestamp) 
-                        VALUES (NULL, '$product_id', '$product_name', '$productType', '$color', '$description', '$quantity', '$price', '$entryTimestamp')";
-
-                if (mysqli_query($conn, $sql)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                // ProductID doesn't exist in the Product table
-                return "Product is not registered";
-            }
+        // Insert data into the Inventory table
+        $sql = "INSERT INTO Inventory (InventoryID, ProductName, ProductType, Color, Description, Quantity, Price, EntryTimestamp) 
+                VALUES (NULL, '$productName', '$productType', '$color', '$description', '$quantity', '$price', '$entryTimestamp')";
+        if (mysqli_query($conn, $sql)) {
+            return true;
         } else {
-            return false; // Data does not contain enough values
+            return false;
         }
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["qr_data"])) {
-        $qr_data = $_POST["qr_data"];
+    function updateDataInDatabase($conn, $inventoryID, $quantity, $price)
+    {
+        // Update the Quantity and Price in the Inventory table
+        $sql = "UPDATE Inventory SET Quantity = '$quantity', Price = '$price' WHERE InventoryID = '$inventoryID'";
+        if (mysqli_query($conn, $sql)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-        if (!empty($qr_data)) {
-            $result = addDataToDatabase($conn, $qr_data);
-            
-            if ($result === true) {
-                echo  '<div class="alert alert-success alert-dismissible">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <strong>Info!</strong> Added Successfully!.
-                        </div>';
-            } elseif ($result === "Product is not registered") {
-                echo  '<div class="alert alert-danger alert-dismissible">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <strong>Error!</strong> Product is not registered.
-                        </div>';
-            } else {
-                echo "Error adding data.";
-            }
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["addItem"])) {
+        $productName = $_POST["productName"];
+        $productType = $_POST["productType"];
+        $color = $_POST["color"];
+        $description = $_POST["description"];
+        $quantity = $_POST["quantity"];
+        $price = $_POST["price"];
+        $entryDate = $_POST["entryDate"];
+        $entryTime = $_POST["entryTime"];
+
+        $result = addDataToDatabase($conn, $productName, $productType, $color, $description, $quantity, $price, $entryDate, $entryTime);
+
+        if ($result === true) {
+            echo '<div class="alert alert-success alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      <strong>Info!</strong> Item added successfully.
+                  </div>';
+        } else {
+            echo '<div class="alert alert-danger alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      <strong>Error!</strong> Failed to add item.
+                  </div>';
+        }
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_button"])) {
+        $inventoryID = $_POST["inventory_id"];
+        $newQuantity = $_POST["edit_quantity"];
+        $newPrice = $_POST["edit_price"];
+
+        $result = updateDataInDatabase($conn, $inventoryID, $newQuantity, $newPrice);
+
+        if ($result === true) {
+            echo '<div class="alert alert-success alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      <strong>Info!</strong> Item updated successfully.
+                  </div>';
+        } else {
+            echo '<div class="alert alert-danger alert-dismissible">
+                      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      <strong>Error!</strong> Failed to update item.
+                  </div>';
         }
     }
     ?>
@@ -141,127 +221,135 @@ include("navigation.php");
         <?php
         $sql = "SELECT * FROM Inventory ORDER BY EntryTimestamp DESC";
         $result = mysqli_query($conn, $sql);
-
         if (mysqli_num_rows($result) > 0) {
             echo "<table border='1'>";
-            echo "<tr><th>InventoryID</th><th>ProductID</th><th>ProductName</th><th>Product Type</th><th>Color</th><th>Description</th><th>Quantity</th><th>Price</th><th>EntryDate</th><th>EntryTime</th><th>Action</th></tr>";
-            echo "<tbody>"; // Start of table body
-
+            echo "<tr>
+                    <th>InventoryID</th>
+                    <th>ProductName</th>
+                    <th>Product Type</th>
+                    <th>Color</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>EntryDate</th>
+                    <th>EntryTime</th>
+                    <th>Action</th>
+                  </tr>";
             while ($row = mysqli_fetch_assoc($result)) {
                 echo "<tr>";
                 echo "<td>" . $row['InventoryID'] . "</td>";
-                echo "<td>" . $row['ProductID'] . "</td>";
                 echo "<td>" . $row['ProductName'] . "</td>";
                 echo "<td>" . $row['ProductType'] . "</td>";
-                echo "<td>" . $row['Color'] . "</td>"; // Display Color
-                echo "<td>" . $row['Description'] . "</td>"; // Display Description
-                // The rest of your table columns...
-
+                echo "<td>" . $row['Color'] . "</td>";
+                echo "<td>" . $row['Description'] . "</td>";
                 echo '<td>
-                        <form method="POST" action="update_quantity.php">
+                        <form method="POST" action="">
                             <input type="hidden" name="inventory_id" value="' . $row['InventoryID'] . '">
                             <input type="number" name="edit_quantity" value="' . $row['Quantity'] . '" disabled>
-                            <button type="button" class="edit-button">Edit</button>
-                            <button type="submit" name="save_button" class="save-button" style="display: none;">Save</button>
                         </form>
                       </td>';
-
-                echo "<td>" . $row['Price'] . "</td>";
-
+                echo '<td>
+                        <form method="POST" action="">
+                            <input type="hidden" name="inventory_id" value="' . $row['InventoryID'] . '">
+                            <input type="number" name="edit_price" value="' . $row['Price'] . '" disabled>
+                        </form>
+                      </td>';
                 $entryTimestamp = strtotime($row['EntryTimestamp']);
                 $entryDate = date("Y-m-d", $entryTimestamp); // Format date
                 $entryTime = date("h:i A", $entryTimestamp); // Format time in 12-hour
-
                 echo "<td>" . $entryDate . "</td>";
                 echo "<td>" . $entryTime . "</td>";
-
-                // Add a "Delete" button for deleting the item
-                echo '<td><button class="delete-button" data-inventory-id="' . $row['InventoryID'] . '">Delete</button></td>';
-
+                echo '<td>
+                        <button class="edit-button" data-inventory-id="' . $row['InventoryID'] . '">Edit</button>
+                        <button class="save-button" style="display: none;" data-inventory-id="' . $row['InventoryID'] . '">Save</button>
+                      </td>';
                 echo "</tr>";
             }
+            echo "</table>";
+        } else {
+            echo "<p>No items in the inventory.</p>";
         }
         ?>
     </div>
 
-    <?php
-    $success = isset($_GET['success']) ? $_GET['success'] : false;
-    $message = isset($_GET['message']) ? urldecode($_GET['message']) : '';
-
-    // Check if the transfer was successful
-    if ($success) {
-        echo '<div class="alert alert-success alert-dismissible">
-                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                <strong>Info!</strong> ' . $message . '.
-              </div>';
-    }
-    ?>
-
     <script>
-        document.getElementById("enterButton").addEventListener("click", function (event) {
-            var qrData = document.getElementById("qrData").value.trim(); // Get and trim QR data input
+        // Open the popup form
+        document.getElementById("openFormButton").addEventListener("click", function() {
+            document.getElementById("popupForm").style.display = "block";
+        });
 
-            if (qrData !== "") {
-                // Assuming the quantity is included in the QR data, extract it
-                var dataArray = qrData.split(',');
-                if (dataArray.length >= 7) { // Assuming quantity is the 7th element in the QR data
-                    var quantity = dataArray[6]; // Extract the quantity
-                    document.getElementById("qrForm").submit();
-                } else {
-                    event.preventDefault();
-                }
+        // Close the popup form
+        document.querySelector(".close-button").addEventListener("click", function() {
+            document.getElementById("popupForm").style.display = "none";
+        });
+
+        // Close the popup form if the user clicks outside of it
+        window.addEventListener("click", function(event) {
+            var popup = document.getElementById("popupForm");
+            if (event.target === popup) {
+                popup.style.display = "none";
             }
         });
-    </script>
 
-    <script>
-        document.querySelectorAll(".delete-button").forEach(function (button) {
-            button.addEventListener("click", function () {
-                var inventoryID = this.getAttribute("data-inventory-id"); // Change this to "data-inventory-id"
-                console.log("Deleting item with InventoryID: " + inventoryID);
+        // Enable Edit Mode
+        document.querySelectorAll(".edit-button").forEach(function(button) {
+            button.addEventListener("click", function() {
+                var inventoryID = this.getAttribute("data-inventory-id");
+                var row = this.closest("tr");
 
-                if (confirm("Are you sure you want to delete this item?")) {
+                // Enable input fields
+                row.querySelector("input[name='edit_quantity']").disabled = false;
+                row.querySelector("input[name='edit_price']").disabled = false;
 
-                    var form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = "delete_item.php"; // Replace with the correct URL
+                // Show the Save button and hide the Edit button
+                row.querySelector(".save-button").style.display = "inline-block";
+                this.style.display = "none";
+            });
+        });
 
-                    var input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "inventory_id"; // Change this to "inventory_id"
-                    input.value = inventoryID;
+        // Save Changes
+        document.querySelectorAll(".save-button").forEach(function(button) {
+            button.addEventListener("click", function() {
+                var inventoryID = this.getAttribute("data-inventory-id");
+                var row = this.closest("tr");
 
-                    form.appendChild(input);
+                // Get updated values
+                var newQuantity = row.querySelector("input[name='edit_quantity']").value;
+                var newPrice = row.querySelector("input[name='edit_price']").value;
 
-                    document.body.appendChild(form);
-                    form.submit();
-                }
+                // Submit the form
+                var form = document.createElement("form");
+                form.method = "POST";
+                form.action = "";
+
+                var input1 = document.createElement("input");
+                input1.type = "hidden";
+                input1.name = "inventory_id";
+                input1.value = inventoryID;
+
+                var input2 = document.createElement("input");
+                input2.type = "hidden";
+                input2.name = "edit_quantity";
+                input2.value = newQuantity;
+
+                var input3 = document.createElement("input");
+                input3.type = "hidden";
+                input3.name = "edit_price";
+                input3.value = newPrice;
+
+                form.appendChild(input1);
+                form.appendChild(input2);
+                form.appendChild(input3);
+                document.body.appendChild(form);
+                form.submit();
             });
         });
     </script>
-
-    <script>
-        document.querySelectorAll(".edit-button").forEach(function (editButton) {
-            editButton.addEventListener("click", function () {
-                // Find the parent form element
-                var form = this.closest("form");
-
-                // Enable the quantity input field
-                form.querySelector("input[type='number']").disabled = false;
-
-                // Toggle the display of "Edit" and "Save" buttons
-                form.querySelector(".edit-button").style.display = "none";
-                form.querySelector(".save-button").style.display = "inline-block";
-            });
-        });
-    </script>
-
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
-
 </div>
-
 </body>
+
 </html>
