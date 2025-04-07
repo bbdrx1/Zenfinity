@@ -43,7 +43,7 @@ if ($result->num_rows > 0) {
     }
     ?>
 
-    <h2 class="mb-4">Transaction Form</h2>
+    <h2 class="mb-4">Orders Transaction Form</h2>
     <style>
         body {
             background-color: #66c1ff;

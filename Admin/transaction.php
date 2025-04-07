@@ -29,13 +29,13 @@ if ($result->num_rows > 0) {
     <?php
     if (isset($_GET["status"])) {
         if ($_GET["status"] === "success") {
-            echo  '<div class="alert alert-success alert-dismissible">
+            echo '<div class="alert alert-success alert-dismissible">
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                         <strong>Info!</strong> Added Successfully!.
                     </div>';
         } elseif ($_GET["status"] === "error") {
             $message = urldecode($_GET["message"]);
-            echo  '<div class="alert alert-danger alert-dismissible">
+            echo '<div class="alert alert-danger alert-dismissible">
                         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                         <strong>Error!</strong> ' . $message . '
                     </div>';
@@ -57,13 +57,17 @@ if ($result->num_rows > 0) {
             border-radius: 10px;
         }
 
-        .transaction-form label, .transaction-form select, .transaction-form input {
+        .transaction-form label,
+        .transaction-form select,
+        .transaction-form input {
             display: block;
             margin-bottom: 10px;
             color: white;
         }
 
-        .transaction-form select, .transaction-form input[type="text"], .transaction-form input[type="number"] {
+        .transaction-form select,
+        .transaction-form input[type="text"],
+        .transaction-form input[type="number"] {
             width: 100%;
             padding: 10px;
             border: none;
@@ -82,7 +86,7 @@ if ($result->num_rows > 0) {
         .transaction-form button:hover {
             background-color: #23395d;
         }
-
+        
         h2 {
             text-align: center;
             color: white;
@@ -154,100 +158,92 @@ if ($result->num_rows > 0) {
         </form>
     </div>
 
-<script>
-    const addProductButton = document.getElementById("addProductButton");
-    const productFieldsContainer = document.querySelector(".product-fields-container");
-    const originalProductFields = document.querySelector(".product-fields");
-    const productSelect = originalProductFields.querySelector("select[name='productname[]']");
-    const productTypeInput = originalProductFields.querySelector("input[name='producttype[]']");
-    const colorInput = originalProductFields.querySelector("input[name='color[]']");
-    const descriptionInput = originalProductFields.querySelector("input[name='description[]']");
-    const priceInput = originalProductFields.querySelector("input[name='price[]']");
-    const quantityInput = originalProductFields.querySelector("input[name='quantity[]']");
+    <script>
+        const addProductButton = document.getElementById("addProductButton");
+        const productFieldsContainer = document.querySelector(".product-fields-container");
+        const originalProductFields = document.querySelector(".product-fields");
 
-    addProductButton.addEventListener("click", () => {
-        const productFields = originalProductFields.cloneNode(true);
-        productFieldsContainer.appendChild(productFields);
+        addProductButton.addEventListener("click", () => {
+            // Get all existing product names in the form
+            const existingProductNames = Array.from(
+                document.querySelectorAll("select[name='productname[]']")
+            ).map(select => select.value);
 
-        // Clear the cloned product inputs
-        const clonedProductInputs = productFields.querySelectorAll("input");
-        clonedProductInputs.forEach(input => {
-            input.value = "";
+            const productFields = originalProductFields.cloneNode(true);
+            const clonedProductSelect = productFields.querySelector("select[name='productname[]']");
+
+            // Clear the cloned product inputs
+            const clonedProductInputs = productFields.querySelectorAll("input");
+            clonedProductInputs.forEach(input => {
+                input.value = "";
+            });
+
+            // Attach event listeners to the cloned product fields
+            clonedProductSelect.addEventListener("change", () => {
+                const selectedProductName = clonedProductSelect.value;
+
+                if (existingProductNames.includes(selectedProductName)) {
+                    alert(`Error: The product "${selectedProductName}" has already been added.`);
+                    clonedProductSelect.value = ""; // Reset the selection
+                    return;
+                }
+
+                // Update product details if the selection is valid
+                const selectedOption = clonedProductSelect.options[clonedProductSelect.selectedIndex];
+                const selectedType = selectedOption.getAttribute("data-type");
+                const selectedColor = selectedOption.getAttribute("data-color");
+                const selectedDescription = selectedOption.getAttribute("data-description");
+                const selectedPrice = selectedOption.getAttribute("data-price");
+
+                const clonedProductTypeInput = productFields.querySelector("input[name='producttype[]']");
+                const clonedColorInput = productFields.querySelector("input[name='color[]']");
+                const clonedDescriptionInput = productFields.querySelector("input[name='description[]']");
+                const clonedPriceInput = productFields.querySelector("input[name='price[]']");
+
+                clonedProductTypeInput.value = selectedType || "";
+                clonedColorInput.value = selectedColor || "";
+                clonedDescriptionInput.value = selectedDescription || "";
+                clonedPriceInput.setAttribute("data-original-price", selectedPrice || "");
+                clonedPriceInput.value = selectedPrice || "";
+            });
+
+            // Append the cloned fields to the container
+            productFieldsContainer.appendChild(productFields);
+
+            // Attach event listeners to the cloned quantity input
+            const clonedQuantityInput = productFields.querySelector("input[name='quantity[]']");
+            const clonedPriceInput = productFields.querySelector("input[name='price[]']");
+
+            clonedQuantityInput.addEventListener("input", () => {
+                updateTotalPrice(clonedQuantityInput, clonedPriceInput);
+            });
+
+            clonedQuantityInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent the default behavior (form submission)
+                    clonedQuantityInput.blur(); // Remove focus from the quantity input
+                    updateTotalPrice(clonedQuantityInput, clonedPriceInput);
+                }
+            });
         });
 
-        // Attach event listeners to the cloned product fields
-        const clonedProductSelect = productFields.querySelector("select[name='productname[]']");
-        const clonedProductTypeInput = productFields.querySelector("input[name='producttype[]']");
-        const clonedColorInput = productFields.querySelector("input[name='color[]']");
-        const clonedDescriptionInput = productFields.querySelector("input[name='description[]']");
-        const clonedPriceInput = productFields.querySelector("input[name='price[]']");
-        const clonedQuantityInput = productFields.querySelector("input[name='quantity[]']");
+        const updateTotalPrice = (quantityInput, priceInput) => {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const originalPrice = parseFloat(priceInput.getAttribute("data-original-price")) || 0;
 
-        clonedProductSelect.addEventListener("change", () => {
-            const selectedOption = clonedProductSelect.options[clonedProductSelect.selectedIndex];
-            const selectedType = selectedOption.getAttribute("data-type");
-            const selectedColor = selectedOption.getAttribute("data-color");
-            const selectedDescription = selectedOption.getAttribute("data-description");
-            const selectedPrice = selectedOption.getAttribute("data-price");
-
-            clonedProductTypeInput.value = selectedType || "";
-            clonedColorInput.value = selectedColor || "";
-            clonedDescriptionInput.value = selectedDescription || "";
-            clonedPriceInput.setAttribute("data-original-price", selectedPrice || "");
-            clonedPriceInput.value = selectedPrice || "";
-        });
-
-        clonedQuantityInput.addEventListener("input", () => {
-            updateTotalPrice(clonedQuantityInput, clonedPriceInput);
-        });
-    });
-
-    productSelect.addEventListener("change", () => {
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const selectedType = selectedOption.getAttribute("data-type");
-        const selectedColor = selectedOption.getAttribute("data-color");
-        const selectedDescription = selectedOption.getAttribute("data-description");
-        const selectedPrice = selectedOption.getAttribute("data-price");
-
-        productTypeInput.value = selectedType || "";
-        colorInput.value = selectedColor || "";
-        descriptionInput.value = selectedDescription || "";
-        priceInput.setAttribute("data-original-price", selectedPrice || "");
-        priceInput.value = selectedPrice || "";
-    });
-
-    quantityInput.addEventListener("input", () => {
-        updateTotalPrice(quantityInput, priceInput);
-    });
-
-    quantityInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Prevent the default behavior (form submission)
-            quantityInput.blur(); // Remove focus from the quantity input
-            updateTotalPrice(quantityInput, priceInput);
-        }
-    });
-
-    const updateTotalPrice = (quantityInput, priceInput) => {
-        const quantity = parseFloat(quantityInput.value) || 0;
-        const originalPrice = parseFloat(priceInput.getAttribute("data-original-price")) || 0;
-
-        if (!isNaN(quantity) && !isNaN(originalPrice)) {
-            const total = quantity * originalPrice;
-            priceInput.value = total.toFixed(2);
-        } else {
-            priceInput.value = "";
-        }
-    };
-</script>
-
-
+            if (!isNaN(quantity) && !isNaN(originalPrice)) {
+                const total = quantity * originalPrice;
+                priceInput.value = total.toFixed(2);
+            } else {
+                priceInput.value = "";
+            }
+        };
+    </script>
 
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
+    </body>
 
-
-</body>
-</html>
+    </html>

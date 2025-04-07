@@ -25,7 +25,8 @@ include("navigation.php");
         background-color: #089cfc;
     }
 
-    th, td {
+    th,
+    td {
         padding: 10px;
         text-align: left;
         border-bottom: 1px solid #ddd;
@@ -77,16 +78,15 @@ include("navigation.php");
         cursor: pointer;
     }
 
-    #GFG > div > div:nth-child(2) {
+    #GFG>div>div:nth-child(2) {
         margin-top: 10px;
         margin-left: 10px;
     }
 
-    #GFG > div > div:nth-child(4) {
+    #GFG>div>div:nth-child(4) {
         margin-top: 10px;
         margin-left: 10px;
     }
-
 </style>
 <script>
     function printDiv() {
@@ -113,7 +113,7 @@ include("navigation.php");
         a.document.write('</body></html>');
         a.document.close();
 
-        setTimeout(function () {
+        setTimeout(function() {
             a.print();
             a.close();
         }, 1000);
@@ -233,4 +233,5 @@ if (!$conn) {
 
 </div>
 </body>
+
 </html>

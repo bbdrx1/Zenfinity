@@ -25,7 +25,8 @@ include("navigation.php");
         background-color: #089cfc;
     }
 
-    th, td {
+    th,
+    td {
         padding: 10px;
         text-align: left;
         border-bottom: 1px solid #ddd;
@@ -77,16 +78,15 @@ include("navigation.php");
         cursor: pointer;
     }
 
-    #GFG > div > div:nth-child(2) {
+    #GFG>div>div:nth-child(2) {
         margin-top: 10px;
         margin-left: 10px;
     }
 
-    #GFG > div > div:nth-child(4) {
+    #GFG>div>div:nth-child(4) {
         margin-top: 10px;
         margin-left: 10px;
     }
-
 </style>
 <script>
     function printDiv() {
@@ -113,7 +113,7 @@ include("navigation.php");
         a.document.write('</body></html>');
         a.document.close();
 
-        setTimeout(function () {
+        setTimeout(function() {
             a.print();
             a.close();
         }, 1000);
@@ -164,12 +164,20 @@ if (!$conn) {
 
             if (isset($_GET['transactionNumber'])) {
                 $transactionNumber = $_GET['transactionNumber'];
-                $sql = "SELECT *, DATE_FORMAT(Entrytimestamp, '%m/%d/%Y') AS EntryDate, TIME(Entrytimestamp) AS EntryTime, SoldTo FROM transaction WHERE TransactionNumber = '$transactionNumber' ORDER BY Entrytimestamp DESC";
+                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
+                    FROM transaction 
+                    WHERE TransactionNumber = '$transactionNumber' 
+                    ORDER BY EntryTimestamp DESC";
             } elseif (isset($_GET['entryDate'])) {
                 $entryDate = $_GET['entryDate'];
-                $sql = "SELECT *, DATE_FORMAT(Entrytimestamp, '%m/%d/%Y') AS EntryDate, TIME(Entrytimestamp) AS EntryTime, SoldTo FROM transaction WHERE DATE(Entrytimestamp) = '$entryDate' ORDER BY Entrytimestamp DESC";
+                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
+                    FROM transaction 
+                    WHERE DATE(EntryTimestamp) = '$entryDate' 
+                    ORDER BY EntryTimestamp DESC";
             } else {
-                $sql = "SELECT *, DATE_FORMAT(Entrytimestamp, '%m/%d/%Y') AS EntryDate, TIME(Entrytimestamp) AS EntryTime, SoldTo FROM transaction ORDER BY Entrytimestamp DESC";
+                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
+                    FROM transaction 
+                    ORDER BY EntryTimestamp DESC";
             }
 
             $result = mysqli_query($conn, $sql);
@@ -179,9 +187,9 @@ if (!$conn) {
                 echo "<tr><th>Transaction Number</th><th>Address</th><th>Product Name</th><th>Product Type</th><th>Color</th><th>Description</th><th>Quantity</th><th>Price</th><th>Entry Date</th><th>Entry Time</th><th>Buyer Name</th></tr>";
 
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $entryTimestamp = strtotime($row['Entrytimestamp']);
-                    $entryDate = date("n/j/Y", $entryTimestamp);
-                    $entryTime = date("h:i A", $entryTimestamp);
+                    // Use the formatted date and time from the query
+                    $entryDate = $row['EntryDate']; // Already formatted as 'm/d/Y'
+                    $entryTime = $row['EntryTime']; // Already formatted as 'h:i A'
 
                     echo "<tr>";
                     echo "<td>" . $row['TransactionNumber'] . "</td>";
@@ -194,8 +202,8 @@ if (!$conn) {
                     $totalQty = $totalQty + $row['Quantity'];
                     echo "<td>₱" . number_format($row['Price'], 2) . "</td>";
                     $totalAmount = $totalAmount + $row['Price'];
-                    echo "<td>" . $entryDate . "</td>";
-                    echo "<td>" . $entryTime . "</td>";
+                    echo "<td>" . $entryDate . "</td>"; // Use the formatted date
+                    echo "<td>" . $entryTime . "</td>"; // Use the formatted time
                     echo "<td>" . $row['SoldTo'] . "</td>";
                     echo "</tr>";
                 }
@@ -212,25 +220,25 @@ if (!$conn) {
             ?>
         </div>
     </div>
-</div>
 
-<script>
-    function searchTransactionByTransactionNumber() {
-        var transactionNumber = document.getElementById("transactionNumberInput").value.trim();
-        window.location.href = "?transactionNumber=" + transactionNumber;
-    }
+    <script>
+        function searchTransactionByTransactionNumber() {
+            var transactionNumber = document.getElementById("transactionNumberInput").value.trim();
+            window.location.href = "?transactionNumber=" + transactionNumber;
+        }
 
-    function searchTransactionByEntryDate() {
-        var entryDate = document.getElementById("entryDateInput").value;
-        window.location.href = "?entryDate=" + entryDate;
-    }
-</script>
+        function searchTransactionByEntryDate() {
+            var entryDate = document.getElementById("entryDateInput").value;
+            window.location.href = "?entryDate=" + entryDate;
+        }
+    </script>
 
-<script src="js/jquery.min.js"></script>
-<script src="js/popper.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/main.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>
 
 </div>
 </body>
+
 </html>
