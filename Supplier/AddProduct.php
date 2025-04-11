@@ -7,12 +7,12 @@ include("navigation.php");
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(247, 247, 247);
         }
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 24px;
             font-weight: bold;
         }
@@ -104,7 +104,7 @@ include("navigation.php");
     <div class="form-container">
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <label for="productID">Product ID:</label>
-			<input type="number" name="productID" required min="1" step="1">
+            <input type="number" name="productID" required min="1" step="1">
 
             <label for="productName">Product Name:</label>
             <input type="text" name="productName" required>
@@ -115,13 +115,13 @@ include("navigation.php");
             <label for="color">Color:</label>
             <input type="text" name="color" required>
 
-			<label for="description">Description:</label>
-			<textarea name="description" required style="width: 100%;"></textarea>
+            <label for="description">Description:</label>
+            <textarea name="description" required style="width: 100%;"></textarea>
 
             <label for="price">Price:</label>
             <input type="number" name="price" step="0.01" required><br>
-<
-            <input type="submit" name="submit" value="Add Product">
+            <
+                <input type="submit" name="submit" value="Add Product">
         </form>
 
         <?php
@@ -130,12 +130,13 @@ include("navigation.php");
         }
         ?>
     </div>
-	
-	<script src="js/jquery.min.js"></script>
+
+    <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
-	
+
 </div>
 </body>
+
 </html>

@@ -46,7 +46,7 @@ if ($result->num_rows > 0) {
     <h2 class="mb-4">Transaction Form</h2>
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(255, 255, 255);
         }
 
         .transaction-form {
@@ -86,10 +86,10 @@ if ($result->num_rows > 0) {
         .transaction-form button:hover {
             background-color: #23395d;
         }
-        
+
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 24px;
             font-weight: bold;
         }

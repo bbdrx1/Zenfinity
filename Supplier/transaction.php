@@ -1,244 +1,249 @@
 <?php
-include("navigation.php");
-?>
-
-<style>
-    body {
-        background-color: #66c1ff;
-        margin: 0;
-    }
-
-    .posted-data {
-        margin-left: 50px;
-        margin-right: 50px;
-    }
-
-    .table-container {
-        max-height: 800px;
-        overflow-y: auto;
-        margin-top: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #089cfc;
-    }
-
-    th,
-    td {
-        padding: 10px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-        color: white;
-        text-align: center;
-    }
-
-    th {
-        background-color: #475053;
-        color: white;
-        position: sticky;
-        top: 0;
-    }
-
-    tr:hover {
-        background-color: #23395d;
-    }
-
-    h2 {
-        text-align: center;
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
-        margin: 20px 0;
-    }
-
-    .search-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .search-container input[type="text"] {
-        width: 200px;
-        margin-right: 10px;
-        padding: 5px;
-    }
-
-    .search-dropdown select {
-        margin-right: 10px;
-        padding: 5px;
-    }
-
-    .search-container button {
-        background-color: #475053;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-    }
-
-    #GFG>div>div:nth-child(2) {
-        margin-top: 10px;
-        margin-left: 10px;
-    }
-
-    #GFG>div>div:nth-child(4) {
-        margin-top: 10px;
-        margin-left: 10px;
-    }
-</style>
-<script>
-    function printDiv() {
-        var divContents = document.getElementById("GFG").innerHTML;
-        var a = window.open('', '', 'height=500, width=500');
-        a.document.write('<html>');
-        a.document.write('<head>');
-        a.document.write('<style>');
-        a.document.write('body { font-family: Arial, sans-serif; }');
-        a.document.write('h1 { color: #333; font-size: 18px; display: flex; align-items: center; }');
-        a.document.write('img { margin-right: 5px; }');
-        a.document.write('p { font-size: 12px; margin: 5px 0; }');
-        a.document.write('table { border-collapse: collapse; width: 100%; }');
-        a.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
-        a.document.write('</style>');
-        a.document.write('</head>');
-        a.document.write('<body>');
-        a.document.write('<h1><img src="Zenfinity Logo.ico" alt="Logo" />ZENFINITY TRADING ENTERPRISES</h1>');
-        a.document.write('<p>Address: Blk 10a lot 11 England st. Pacita Complex 1 San Francisco Biñan Laguna, San Pedro, Philippines</p>');
-        a.document.write('<p>Contact Number: 0995 136 5404</p>');
-        a.document.write('<p>Email: zenfinitytrading@hotmail.com</p>');
-        a.document.write('<h1>Transaction Paper</h1>');
-        a.document.write(divContents);
-        a.document.write('</body></html>');
-        a.document.close();
-
-        setTimeout(function() {
-            a.print();
-            a.close();
-        }, 1000);
-    }
-</script>
-
-<?php
-$host = "localhost";
+$servername = "localhost";
 $username = "root";
 $password = "";
-$database = "zenfinityaccount";
+$dbname = "zenfinityaccount";
 
-$conn = mysqli_connect($host, $username, $password, $database);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-    include("navigation.php");
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+include("navigation.php");
+
+$query = "SELECT productname FROM product";
+$result = $conn->query($query);
+
+$productNames = array();
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $productNames[] = $row["productname"];
+    }
 }
 ?>
 
+<!-- Page Content -->
 <div id="content" class="p-4 p-md-5 pt-5">
-    <h2 class="mb-4">Transaction History</h2>
+    <?php
+    if (isset($_GET["status"])) {
+        if ($_GET["status"] === "success") {
+            echo '<div class="alert alert-success alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong>Info!</strong> Added Successfully!.
+                    </div>';
+        } elseif ($_GET["status"] === "error") {
+            $message = urldecode($_GET["message"]);
+            echo '<div class="alert alert-danger alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong>Error!</strong> ' . $message . '
+                    </div>';
+        }
+    }
+    ?>
 
-    <!-- Search bar for Entry Date -->
-    <div class="search-container">
-        <input type="date" id="entryDateInput">
-        <button onclick="searchTransactionByEntryDate()">Search</button>
-    </div>
+    <h2 class="mb-4">Transaction Form</h2>
+    <style>
+        body {
+            background-color: rgb(252, 252, 252);
+        }
 
-    <!-- Add spacing between the search and print elements -->
-    <div style="margin-top: 10px;"></div>
+        .transaction-form {
+            margin: 0 auto;
+            width: 70%;
+            background-color: #089cfc;
+            padding: 20px;
+            border-radius: 10px;
+        }
 
-    <!-- Search bar for Transaction Number -->
-    <div class="search-container" style="margin-left: 10px;">
-        <input type="text" id="transactionNumberInput" placeholder="Transaction Number...">
-        <button onclick="searchTransactionByTransactionNumber()">Search</button>
-    </div>
+        .transaction-form label,
+        .transaction-form select,
+        .transaction-form input {
+            display: block;
+            margin-bottom: 10px;
+            color: white;
+        }
 
-    <!-- Add spacing between the search and print elements -->
-    <div style="margin-top: 10px; margin-left: 10px;">
-        <input type="button" value="PRINT" onclick="printDiv()">
-    </div>
+        .transaction-form select,
+        .transaction-form input[type="text"],
+        .transaction-form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
 
-    <div id="GFG">
-        <div class="table-container">
-            <?php
-            $totalQty = $totalAmount = 0;
+        .transaction-form button {
+            background-color: #475053;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-            if (isset($_GET['transactionNumber'])) {
-                $transactionNumber = $_GET['transactionNumber'];
-                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
-                    FROM transaction 
-                    WHERE TransactionNumber = '$transactionNumber' 
-                    ORDER BY EntryTimestamp DESC";
-            } elseif (isset($_GET['entryDate'])) {
-                $entryDate = $_GET['entryDate'];
-                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
-                    FROM transaction 
-                    WHERE DATE(EntryTimestamp) = '$entryDate' 
-                    ORDER BY EntryTimestamp DESC";
-            } else {
-                $sql = "SELECT *, DATE_FORMAT(EntryTimestamp, '%m/%d/%Y') AS EntryDate, TIME(EntryTimestamp) AS EntryTime, SoldTo 
-                    FROM transaction 
-                    ORDER BY EntryTimestamp DESC";
-            }
+        .transaction-form button:hover {
+            background-color: #23395d;
+        }
 
-            $result = mysqli_query($conn, $sql);
+        h2 {
+            text-align: center;
+            color: black;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+    <div class="transaction-form">
+        <form action="process_transaction.php" method="post">
 
-            if (mysqli_num_rows($result) > 0) {
-                echo "<table border='1'>";
-                echo "<tr><th>Transaction Number</th><th>Address</th><th>Product Name</th><th>Product Type</th><th>Color</th><th>Description</th><th>Quantity</th><th>Price</th><th>Entry Date</th><th>Entry Time</th><th>Buyer Name</th></tr>";
+            <label for="soldto">Name of Sold to:</label>
+            <input type="text" id="soldto" name="soldto" placeholder="Enter the name" required style="color: black;">
 
-                while ($row = mysqli_fetch_assoc($result)) {
-                    // Use the formatted date and time from the query
-                    $entryDate = $row['EntryDate']; // Already formatted as 'm/d/Y'
-                    $entryTime = $row['EntryTime']; // Already formatted as 'h:i A'
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" placeholder="Enter the address" required style="color: black;">
 
-                    echo "<tr>";
-                    echo "<td>" . $row['TransactionNumber'] . "</td>";
-                    echo "<td>" . $row['Address'] . "</td>";
-                    echo "<td>" . $row['ProductName'] . "</td>";
-                    echo "<td>" . $row['ProductType'] . "</td>";
-                    echo "<td>" . $row['Color'] . "</td>";
-                    echo "<td>" . $row['Description'] . "</td>";
-                    echo "<td>" . $row['Quantity'] . "</td>";
-                    $totalQty = $totalQty + $row['Quantity'];
-                    echo "<td>₱" . number_format($row['Price'], 2) . "</td>";
-                    $totalAmount = $totalAmount + $row['Price'];
-                    echo "<td>" . $entryDate . "</td>"; // Use the formatted date
-                    echo "<td>" . $entryTime . "</td>"; // Use the formatted time
-                    echo "<td>" . $row['SoldTo'] . "</td>";
-                    echo "</tr>";
-                }
-            } else {
-                echo "<p>No data available in the transaction table.</p>";
-            }
+            <div class="product-fields-container">
+                <div class="product-fields">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 10px;">
+                            <label for="productname">Product Name:</label>
+                            <select id="productname" name="productname[]" required style="color: black;">
+                                <option value="">Select a product</option>
+                                <?php
+                                // Fetch product name, type, color, description, and price from the database
+                                $query = "SELECT ProductName, ProductType, Color, Description, Price FROM product";
+                                $result = $conn->query($query);
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        $productName = $row["ProductName"];
+                                        $productType = $row["ProductType"];
+                                        $color = $row["Color"];
+                                        $description = $row["Description"];
+                                        $price = $row["Price"];
+                                        echo "<option value=\"$productName\" data-type=\"$productType\" data-color=\"$color\" data-description=\"$description\" data-price=\"$price\">$productName</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div style="flex: 1; margin-right: 10px;">
+                            <label for="producttype">Product Type:</label>
+                            <input type="text" id="producttype" name="producttype[]" placeholder="Product Type" required style="color: black;" readonly>
+                        </div>
+                        <div style="flex: 1; margin-right: 10px;">
+                            <label for="color">Color:</label>
+                            <input type="text" id="color" name="color[]" placeholder="Color" required style="color: black;" readonly>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="description">Description:</label>
+                            <input type="text" id="description" name="description[]" placeholder="Description" required style="color: black;" readonly>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 10px;">
+                            <label for="quantity">Quantity:</label>
+                            <input type="number" id="quantity" name="quantity[]" placeholder="Enter quantity" required style="color: black;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="price">Total Price:</label>
+                            <input type="text" id="price" name="price[]" placeholder="Price will be updated based on product selection" required style="color: black;" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="addProductButton" type="button">Add Product</button>
+            <button type="submit">Submit</button>
 
-            echo "<tr>";
-            echo "<td colspan='6' style='text-align:right;'> Total Quantity</td>";
-            echo "<td colspan=''>" . $totalQty . "</td>";
-            echo "<td colspan=''>Total Amount</td>";
-            echo "<td colspan='3'>₱" . number_format($totalAmount, 2) . "</td>";
-            echo "</tr>";
-            ?>
-        </div>
+        </form>
     </div>
 
     <script>
-        function searchTransactionByTransactionNumber() {
-            var transactionNumber = document.getElementById("transactionNumberInput").value.trim();
-            window.location.href = "?transactionNumber=" + transactionNumber;
-        }
+        const addProductButton = document.getElementById("addProductButton");
+        const productFieldsContainer = document.querySelector(".product-fields-container");
+        const originalProductFields = document.querySelector(".product-fields");
 
-        function searchTransactionByEntryDate() {
-            var entryDate = document.getElementById("entryDateInput").value;
-            window.location.href = "?entryDate=" + entryDate;
-        }
+        addProductButton.addEventListener("click", () => {
+            // Get all existing product names in the form
+            const existingProductNames = Array.from(
+                document.querySelectorAll("select[name='productname[]']")
+            ).map(select => select.value);
+
+            const productFields = originalProductFields.cloneNode(true);
+            const clonedProductSelect = productFields.querySelector("select[name='productname[]']");
+
+            // Clear the cloned product inputs
+            const clonedProductInputs = productFields.querySelectorAll("input");
+            clonedProductInputs.forEach(input => {
+                input.value = "";
+            });
+
+            // Attach event listeners to the cloned product fields
+            clonedProductSelect.addEventListener("change", () => {
+                const selectedProductName = clonedProductSelect.value;
+
+                if (existingProductNames.includes(selectedProductName)) {
+                    alert(`Error: The product "${selectedProductName}" has already been added.`);
+                    clonedProductSelect.value = ""; // Reset the selection
+                    return;
+                }
+
+                // Update product details if the selection is valid
+                const selectedOption = clonedProductSelect.options[clonedProductSelect.selectedIndex];
+                const selectedType = selectedOption.getAttribute("data-type");
+                const selectedColor = selectedOption.getAttribute("data-color");
+                const selectedDescription = selectedOption.getAttribute("data-description");
+                const selectedPrice = selectedOption.getAttribute("data-price");
+
+                const clonedProductTypeInput = productFields.querySelector("input[name='producttype[]']");
+                const clonedColorInput = productFields.querySelector("input[name='color[]']");
+                const clonedDescriptionInput = productFields.querySelector("input[name='description[]']");
+                const clonedPriceInput = productFields.querySelector("input[name='price[]']");
+
+                clonedProductTypeInput.value = selectedType || "";
+                clonedColorInput.value = selectedColor || "";
+                clonedDescriptionInput.value = selectedDescription || "";
+                clonedPriceInput.setAttribute("data-original-price", selectedPrice || "");
+                clonedPriceInput.value = selectedPrice || "";
+            });
+
+            // Append the cloned fields to the container
+            productFieldsContainer.appendChild(productFields);
+
+            // Attach event listeners to the cloned quantity input
+            const clonedQuantityInput = productFields.querySelector("input[name='quantity[]']");
+            const clonedPriceInput = productFields.querySelector("input[name='price[]']");
+
+            clonedQuantityInput.addEventListener("input", () => {
+                updateTotalPrice(clonedQuantityInput, clonedPriceInput);
+            });
+
+            clonedQuantityInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevent the default behavior (form submission)
+                    clonedQuantityInput.blur(); // Remove focus from the quantity input
+                    updateTotalPrice(clonedQuantityInput, clonedPriceInput);
+                }
+            });
+        });
+
+        const updateTotalPrice = (quantityInput, priceInput) => {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const originalPrice = parseFloat(priceInput.getAttribute("data-original-price")) || 0;
+
+            if (!isNaN(quantity) && !isNaN(originalPrice)) {
+                const total = quantity * originalPrice;
+                priceInput.value = total.toFixed(2);
+            } else {
+                priceInput.value = "";
+            }
+        };
     </script>
 
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
+    </body>
 
-</div>
-</body>
-
-</html>
+    </html>

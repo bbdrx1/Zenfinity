@@ -4,8 +4,9 @@ include("navigation.php");
 
 <style>
     body {
-        background-color: #66c1ff;
-        margin: 0; /* Remove default body margin */
+        background-color: rgb(255, 255, 255);
+        margin: 0;
+        /* Remove default body margin */
     }
 
     .table-container {
@@ -15,7 +16,8 @@ include("navigation.php");
     }
 
     .month-table {
-        margin-bottom: 20px; /* Add space between month tables */
+        margin-bottom: 20px;
+        /* Add space between month tables */
     }
 
     table {
@@ -24,7 +26,8 @@ include("navigation.php");
         background-color: #089cfc;
     }
 
-    th, td {
+    th,
+    td {
         padding: 10px;
         text-align: left;
         border-bottom: 1px solid #ddd;
@@ -45,10 +48,11 @@ include("navigation.php");
 
     h2 {
         text-align: center;
-        color: white;
+        color: black;
         font-size: 24px;
         font-weight: bold;
-        margin: 20px 0; /* Adjust top and bottom margin */
+        margin: 20px 0;
+        /* Adjust top and bottom margin */
     }
 
     .filter-container {
@@ -56,40 +60,40 @@ include("navigation.php");
     }
 </style>
 
-<script> 
-function printDiv() { 
-    var divContents = document.getElementById("GFG").innerHTML; 
-    var a = window.open('', '', 'height=500, width=500'); 
-    a.document.write('<html>'); 
-    a.document.write('<head>');
-    a.document.write('<style>');
-    // Add your print styles here
-    a.document.write('body { font-family: Arial, sans-serif; }');
-    a.document.write('h1 { color: #333; font-size: 18px; display: flex; align-items: center; }'); // Adjust the font size for h1
-    a.document.write('img { margin-right: 5px; }'); // Add styles for the image
-    a.document.write('p { font-size: 12px; margin: 5px 0; }'); // Adjust the font size and margin for paragraphs
-    a.document.write('table { border-collapse: collapse; width: 100%; }');
-    a.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
-    // Add more styles as needed
-    a.document.write('</style>');
-    a.document.write('</head>');
-    a.document.write('<body>');
-    a.document.write('<h1><img src="Zenfinity Logo.ico" alt="Logo" />ZENFINITY TRADING ENTERPRISES</h1>');
-    a.document.write('<p>Address: Blk 10a lot 11 England st. Pacita Complex 1 San Francisco Biñan Laguna, San Pedro, Philippines</p>');
-    a.document.write('<p>Contact Number: 0995 136 5404</p>');
-    a.document.write('<p>Email: zenfinitytrading@hotmail.com</p>');
-	 a.document.write('<h1>Sales Report</h1>');
-    a.document.write(divContents);
-    a.document.write('</body></html>');
-    a.document.close();
-    
-    // Delay the print operation
-    setTimeout(function() {
-        a.print(); 
-        a.close();
-    }, 1000); // Adjust the delay time (in milliseconds) as needed
-}
-</script> 
+<script>
+    function printDiv() {
+        var divContents = document.getElementById("GFG").innerHTML;
+        var a = window.open('', '', 'height=500, width=500');
+        a.document.write('<html>');
+        a.document.write('<head>');
+        a.document.write('<style>');
+        // Add your print styles here
+        a.document.write('body { font-family: Arial, sans-serif; }');
+        a.document.write('h1 { color: #333; font-size: 18px; display: flex; align-items: center; }'); // Adjust the font size for h1
+        a.document.write('img { margin-right: 5px; }'); // Add styles for the image
+        a.document.write('p { font-size: 12px; margin: 5px 0; }'); // Adjust the font size and margin for paragraphs
+        a.document.write('table { border-collapse: collapse; width: 100%; }');
+        a.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+        // Add more styles as needed
+        a.document.write('</style>');
+        a.document.write('</head>');
+        a.document.write('<body>');
+        a.document.write('<h1><img src="Zenfinity Logo.ico" alt="Logo" />ZENFINITY TRADING ENTERPRISES</h1>');
+        a.document.write('<p>Address: Blk 10a lot 11 England st. Pacita Complex 1 San Francisco Biñan Laguna, San Pedro, Philippines</p>');
+        a.document.write('<p>Contact Number: 0995 136 5404</p>');
+        a.document.write('<p>Email: zenfinitytrading@hotmail.com</p>');
+        a.document.write('<h1>Sales Report</h1>');
+        a.document.write(divContents);
+        a.document.write('</body></html>');
+        a.document.close();
+
+        // Delay the print operation
+        setTimeout(function() {
+            a.print();
+            a.close();
+        }, 1000); // Adjust the delay time (in milliseconds) as needed
+    }
+</script>
 
 <?php
 $host = "localhost";
@@ -105,26 +109,26 @@ if (!$conn) {
 ?>
 
 <div id="content" class="p-4 p-md-5 pt-5">
-<h2 class="mb-4">Sales Report</h2>
+    <h2 class="mb-4">Sales Report</h2>
     <div class="filter-container">
-       
+
         <select id="monthSelect" onchange="filterTable()">
             <option value="all">All</option>
             <?php
             $sql = "SELECT DISTINCT DATE_FORMAT(Entrytimestamp, '%M %Y') AS MonthYear FROM transaction";
             $result = mysqli_query($conn, $sql);
-            
+
             if ($result) {
                 while ($row = mysqli_fetch_assoc($result)) {
                     echo '<option value="' . $row['MonthYear'] . '">' . $row['MonthYear'] . '</option>';
                 }
             }
             ?>
-			 <input type="button" value="PRINT" onclick="printDiv()"> 
+            <input type="button" value="PRINT" onclick="printDiv()">
         </select>
     </div>
-    <div id="GFG"> 
-        
+    <div id="GFG">
+
 
         <div class="table-container">
             <?php
@@ -205,21 +209,20 @@ if (!$conn) {
                     echo "</tr>";
                     echo "</table>";
                 }
-
             } else {
                 echo "<p>No sales data available.</p>";
             }
             ?>
         </div>
-       
-    </div>  
+
+    </div>
 </div>
 
 <script>
     function filterTable() {
         var selectedMonth = document.getElementById("monthSelect").value;
         var tables = document.getElementsByClassName("month-table");
-        
+
         for (var i = 0; i < tables.length; i++) {
             tables[i].style.display = "none";
         }
@@ -242,4 +245,5 @@ if (!$conn) {
 <script src="js/bootstrap.min.js"></script>
 <script src="js/main.js"></script>
 </body>
+
 </html>

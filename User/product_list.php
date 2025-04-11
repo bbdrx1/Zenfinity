@@ -18,6 +18,7 @@ $host = "localhost";
 $username = "root";
 $password = "";
 $database = "zenfinityaccount";
+
 $conn = new mysqli($host, $username, $password, $database);
 
 if ($conn->connect_error) {
@@ -35,12 +36,12 @@ if ($conn->connect_error) {
         <title>Customer Product Page</title>
         <style>
             body {
-                background-color: #66c1ff;
+                background-color: rgb(255, 255, 255);
             }
 
             h2 {
                 text-align: center;
-                color: white;
+                color: black;
                 font-size: 24px;
                 font-weight: bold;
             }
@@ -138,6 +139,7 @@ if ($conn->connect_error) {
         <h2>Product Gallery</h2>
         <div class="product-container">
             <?php
+            // Fetch products with images
             $galleryQuery = "SELECT ProductName, Quantity, ImageURL FROM product";
             $galleryResult = $conn->query($galleryQuery);
 

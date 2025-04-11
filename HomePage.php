@@ -22,6 +22,7 @@ $result = $conn->query($sql);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,8 @@ $result = $conn->query($sql);
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: white;
+            /* Changed background color to white */
         }
 
         .image-container {
@@ -45,7 +47,8 @@ $result = $conn->query($sql);
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
+            /* Adjusted text color for better contrast against white background */
             font-size: 45px;
             font-weight: bold;
         }
@@ -97,65 +100,64 @@ $result = $conn->query($sql);
         }
     </style>
 </head>
+
 <body>
 
-<div id="content" class="p-4 p-md-5 pt-5">
-    <h2 class="mb-4">Welcome to Sales and Inventory System of<br>Zenfinity Trading Enterprises </h2>
-    <img src="System Icon.png" alt="Image Description" class="custom-image">
-</div>
+    <div id="content" class="p-4 p-md-5 pt-5">
+        <h2 class="mb-4">Welcome to Sales and Inventory System of<br>Zenfinity Trading Enterprises </h2>
+        <img src="System Icon.png" alt="Image Description" class="custom-image">
+    </div>
 
-<?php
-$alertCounter = 0; // Counter to create unique identifiers for alerts
-$alertSpacing = 120; // Adjust the spacing between alerts
+    <?php
+    $alertCounter = 0; // Counter to create unique identifiers for alerts
+    $alertSpacing = 120; // Adjust the spacing between alerts
 
-while ($row = $result->fetch_assoc()) {
-    $productName = $row["ProductName"];
-    $quantity = $row["Quantity"];
-    
-    if ($quantity < 50) {
-        $alertCounter++; // Increment the counter to create a unique identifier
-        $topPosition = $alertCounter * $alertSpacing; // Calculate the top position
-        $alertId = "alert" . $alertCounter; // Generate a unique alert ID
-        echo "<div class='low-stock-alert' id='$alertId' style='top: {$topPosition}px;'>";
-        echo "<span class='close-button'>&times;</span>"; // Close button
-        echo "<div class='alert-content'>";
-        echo "<p class='alert alert-danger alert-text' role='alert'>";
-        echo "Low stock alert: Product <b>'$productName'</b> has a quantity of $quantity, contact the supplier as soon as possible for replenishing of stock";
-        echo "</p>";
-        echo "</div>";
-        echo "</div>";
-    }
-}
-?>
+    while ($row = $result->fetch_assoc()) {
+        $productName = $row["ProductName"];
+        $quantity = $row["Quantity"];
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        <?php
-        // Check if you are on the home page and if there are any products with a quantity below 50
-        if ($onHomePage && $result->num_rows > 0) {
-            echo "var lowStockAlerts = document.querySelectorAll('.low-stock-alert');";
-            echo "lowStockAlerts.forEach(function(alert) { alert.style.display = 'block'; });";
+        if ($quantity < 50) {
+            $alertCounter++; // Increment the counter to create a unique identifier
+            $topPosition = $alertCounter * $alertSpacing; // Calculate the top position
+            $alertId = "alert" . $alertCounter; // Generate a unique alert ID
+            echo "<div class='low-stock-alert' id='$alertId' style='top: {$topPosition}px;'>";
+            echo "<span class='close-button'>&times;</span>"; // Close button
+            echo "<div class='alert-content'>";
+            echo "<p class='alert alert-danger alert-text' role='alert'>";
+            echo "Low stock alert: Product <b>'$productName'</b> has a quantity of $quantity, contact the supplier as soon as possible for replenishing of stock";
+            echo "</p>";
+            echo "</div>";
+            echo "</div>";
         }
-        ?>
-        
-        var closeButtons = document.querySelectorAll('.close-button');
-        
-        closeButtons.forEach(function(button) {
-            button.addEventListener('click', function(event) {
-                var alert = event.target.closest('.low-stock-alert');
-                if (alert) {
-                    alert.style.display = 'none';
-                }
+    }
+    ?>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php
+            // Check if you are on the home page and if there are any products with a quantity below 50
+            if ($onHomePage && $result->num_rows > 0) {
+                echo "var lowStockAlerts = document.querySelectorAll('.low-stock-alert');";
+                echo "lowStockAlerts.forEach(function(alert) { alert.style.display = 'block'; });";
+            }
+            ?>
+
+            var closeButtons = document.querySelectorAll('.close-button');
+
+            closeButtons.forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    var alert = event.target.closest('.low-stock-alert');
+                    if (alert) {
+                        alert.style.display = 'none';
+                    }
+                });
             });
         });
-    });
-</script>
-<script src="js/jquery.min.js"></script>
-<script src="js/popper.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/main.js"></script>
-
-
-
+    </script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>
 </body>
+
 </html>

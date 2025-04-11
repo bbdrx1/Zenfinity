@@ -4,7 +4,7 @@ include("navigation.php");
 
 <div id="content" class="p-4 p-md-5 pt-5">
     <h2 class="mb-4">Product List</h2>
-	<!-- Add a legend section for the quantity borders -->
+    <!-- Add a legend section for the quantity borders -->
     <div class="legend-container">
         <h4>Legend:</h4>
         <div class="legend-item">
@@ -23,7 +23,7 @@ include("navigation.php");
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(255, 255, 255);
         }
 
         /* CSS styles for the legend */
@@ -72,8 +72,10 @@ include("navigation.php");
 
         .product-container {
             display: flex;
-            flex-wrap: wrap; /* Allow boxes to wrap to the next line */
-            justify-content: flex-start; /* Start from left to right */
+            flex-wrap: wrap;
+            /* Allow boxes to wrap to the next line */
+            justify-content: flex-start;
+            /* Start from left to right */
         }
 
         .product-box {
@@ -81,19 +83,26 @@ include("navigation.php");
             padding: 20px;
             margin: 10px;
             border-radius: 5px;
-            width: 350px; /* Adjust the width as needed */
-            height: 410px; /* Adjust the height as needed */
+            width: 350px;
+            /* Adjust the width as needed */
+            height: 410px;
+            /* Adjust the height as needed */
             text-align: center;
             color: white;
             display: flex;
-            flex-direction: column; /* Stack the inner elements vertically */
-            justify-content: space-between; /* Add space between the inner elements */
+            flex-direction: column;
+            /* Stack the inner elements vertically */
+            justify-content: space-between;
+            /* Add space between the inner elements */
         }
 
         .product-info {
-            font-size: 15px; /* Adjust the font size as needed */
-            text-align: left; /* Align the text to the left within product-info */
-            padding: 5px; /* Add padding to create space around the text */
+            font-size: 15px;
+            /* Adjust the font size as needed */
+            text-align: left;
+            /* Align the text to the left within product-info */
+            padding: 5px;
+            /* Add padding to create space around the text */
         }
 
         .red-border {
@@ -109,7 +118,8 @@ include("navigation.php");
         }
 
         h3 {
-            font-size: 20px; /* Adjust the title font size as needed */
+            font-size: 20px;
+            /* Adjust the title font size as needed */
             font-weight: bold;
         }
 
@@ -146,7 +156,7 @@ include("navigation.php");
         }
     </style>
 
-   
+
     <div class="alert-container" id="alert-container"></div>
 
     <?php
@@ -192,17 +202,17 @@ include("navigation.php");
 
             // Container for buttons
             echo '<div class="button-container">';
-            
+
             // Add an "Edit" button for each product
-          
-            
+
+
             // Add a form for deleting each product with a confirmation dialog
             echo '<form action="delete_product.php" method="post" class="delete-form" onsubmit="return confirmDelete();">';
             echo '<input type="hidden" name="product_id" value="' . $row['ProductID'] . '">';
             echo '</form>';
-            
+
             echo '</div>'; // Close button-container
-            
+
             echo '</div>'; // Close product-info
             echo '</div>'; // Close product-box
 
@@ -240,8 +250,8 @@ include("navigation.php");
 
     <script src="js/jquery.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $(".edit-button").click(function () {
+        $(document).ready(function() {
+            $(".edit-button").click(function() {
                 // Get the product ID from the data attribute
                 var productId = $(this).data("product-id");
 
@@ -255,7 +265,7 @@ include("navigation.php");
     </script>
 
     <script>
-        document.getElementById("enterButton").addEventListener("click", function (event) {
+        document.getElementById("enterButton").addEventListener("click", function(event) {
             var qrData = document.getElementById("qrData").value.trim(); // Get and trim QR data input
 
             if (qrData !== "") {
@@ -296,7 +306,7 @@ include("navigation.php");
             alertContainer.appendChild(alertElement);
 
             // Automatically hide the alert after 5 seconds
-            setTimeout(function () {
+            setTimeout(function() {
                 alertElement.classList.remove("show");
             }, 5000);
         }
@@ -308,4 +318,5 @@ include("navigation.php");
     <script src="js/main.js"></script>
 </div>
 </body>
+
 </html>

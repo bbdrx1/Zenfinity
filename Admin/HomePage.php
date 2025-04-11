@@ -48,7 +48,7 @@ $result = $conn->query($sql);
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(250, 250, 250);
         }
 
         .image-container {
@@ -64,7 +64,7 @@ $result = $conn->query($sql);
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 45px;
             font-weight: bold;
         }

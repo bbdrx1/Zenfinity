@@ -1,23 +1,4 @@
 <?php
-session_start();
-
-// Redirect to the login page if the user is not logged in
-if (!isset($_SESSION['username'])) {
-    header("Location: ../index.html");
-    exit();
-}
-
-$userType = $_SESSION['type'];
-
-if ($userType !== 'supplier') {
-    if ($userType !== 'admin') {
-        echo "<div style='color: red; font-size: 18px; text-align: center; padding: 20px;'>Error: Unauthorized access</div>";
-        echo "<img src='Stop.png' alt='Stop Image' style='display: block; margin: 0 auto;'>";
-        exit();
-    }
-    exit();
-}
-
 $onHomePage = true; // Set this to true if you are on the home page
 include("navigation.php");
 
@@ -45,11 +26,12 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supplier Page - Zenfinity Trading Enterprises</title>
+    <title>Your Page Title</title>
 
     <style>
+        /* Explicitly set the background color to white */
         body {
-            background-color: #66c1ff;
+            background-color: white;
         }
 
         .image-container {
@@ -65,7 +47,7 @@ $result = $conn->query($sql);
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 45px;
             font-weight: bold;
         }
@@ -119,9 +101,8 @@ $result = $conn->query($sql);
 </head>
 
 <body>
-
     <div id="content" class="p-4 p-md-5 pt-5">
-        <h2 class="mb-4">Welcome to Supplier Dashboard<br>Zenfinity Trading Enterprises</h2>
+        <h2 class="mb-4">Welcome to Sales and Inventory System of<br>Zenfinity Trading Enterprises </h2>
         <img src="System Icon.png" alt="Image Description" class="custom-image">
     </div>
 
@@ -141,7 +122,7 @@ $result = $conn->query($sql);
             echo "<span class='close-button'>&times;</span>"; // Close button
             echo "<div class='alert-content'>";
             echo "<p class='alert alert-danger alert-text' role='alert'>";
-            echo "Low stock alert: Product <b>'$productName'</b> has a quantity of $quantity, replenish the stock as soon as possible.";
+            echo "Low stock alert: Product <b>'$productName'</b> has a quantity of $quantity, contact the supplier as soon as possible for replenishing of stock";
             echo "</p>";
             echo "</div>";
             echo "</div>";
@@ -175,7 +156,6 @@ $result = $conn->query($sql);
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
-
 </body>
 
 </html>

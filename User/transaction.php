@@ -46,7 +46,7 @@ if ($result->num_rows > 0) {
     <h2 class="mb-4">Orders Transaction Form</h2>
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(255, 255, 255);
         }
 
         .transaction-form {
@@ -57,13 +57,17 @@ if ($result->num_rows > 0) {
             border-radius: 10px;
         }
 
-        .transaction-form label, .transaction-form select, .transaction-form input {
+        .transaction-form label,
+        .transaction-form select,
+        .transaction-form input {
             display: block;
             margin-bottom: 10px;
             color: white;
         }
 
-        .transaction-form select, .transaction-form input[type="text"], .transaction-form input[type="number"] {
+        .transaction-form select,
+        .transaction-form input[type="text"],
+        .transaction-form input[type="number"] {
             width: 100%;
             padding: 10px;
             border: none;
@@ -85,7 +89,7 @@ if ($result->num_rows > 0) {
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 24px;
             font-weight: bold;
         }
@@ -237,5 +241,6 @@ if ($result->num_rows > 0) {
     <script src="js/main.js"></script>
 
 
-</body>
-</html>
+    </body>
+
+    </html>

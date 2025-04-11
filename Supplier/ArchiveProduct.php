@@ -16,7 +16,7 @@ include("navigation.php");
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color:rgb(255, 255, 255);
         }
 
         .posted-data {
@@ -69,7 +69,7 @@ include("navigation.php");
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 24px;
             font-weight: bold;
         }
