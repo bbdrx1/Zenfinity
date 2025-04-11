@@ -149,14 +149,14 @@ if ($conn->connect_error) {
                     $quantity = (int)$row['Quantity'];
 
                     // Get image from images folder using the file name only
-                    $imageFileName = basename($row['ImageURL']); // safely get the file name
+                    $imageFileName = basename($row['ImageURL']); // Safely get the file name
                     $imgSrc = 'images/' . $imageFileName;
 
                     echo '<div class="product-box">';
                     echo "<img src='$imgSrc' alt='$productName' class='product-image'>";
                     echo "<div class='product-info'>";
                     echo "<h3>$productName</h3>";
-                    //echo "<p>Available: $quantity</p>";
+                    echo "<p>Available: $quantity</p>";
                     echo "</div></div>";
                 }
             } else {
