@@ -44,7 +44,7 @@ if ($conn->connect_error) {
 
     <style>
         body {
-            background-color: #66c1ff;
+            background-color: rgb(252, 252, 252);
         }
 
         .image-container {
@@ -60,7 +60,7 @@ if ($conn->connect_error) {
 
         h2 {
             text-align: center;
-            color: white;
+            color: black;
             font-size: 45px;
             font-weight: bold;
         }

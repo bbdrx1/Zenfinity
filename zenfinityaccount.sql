@@ -255,9 +255,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`ID`, `username`, `password`, `Email`, `type`) VALUES
-(1, 'test_admin', 'hashed_password_admin', 'admin@test.com', 'admin'),
-(2, 'test_customer', 'hashed_password_customer', 'customer@test.com', 'customer'),
-(3, 'test_supplier', 'hashed_password_supplier', 'supplier@test.com', 'supplier');
+(1, 'test_admin', '123', 'admin@test.com', 'admin'),
+(2, 'test_customer', '123', 'customer@test.com', 'customer'),
+(3, 'test_supplier', '123', 'supplier@test.com', 'supplier');
 
 --
 -- Indexes for dumped tables
