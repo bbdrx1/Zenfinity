@@ -155,8 +155,9 @@ include("navigation.php");
         <label for="user_type">Select User Type:</label>
         <select name="user_type" required>
             <option value="">Select User Type</option>
-            <option value="User">User</option>
-            <option value="Admin">Admin</option>
+            <option value="customer">User</option>
+            <option value="admin">Admin</option>
+            <option value="supplier">Supplier</option>
         </select>
 
         <input type="submit" value="Register">

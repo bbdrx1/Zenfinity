@@ -1,14 +1,17 @@
 <?php
-// Check if the form was submitted
+session_start(); // Start session for flash messages
+
+// Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $productId = $_POST["product_id"];
+    // Get product ID and editable fields
+    $productId = intval($_POST["product_id"]);
     $newProductName = $_POST["edit-product-name"];
     $newProductType = $_POST["edit-product-type"];
     $newColor = $_POST["edit-color"];
-    $newDescription = $_POST["edit-description"];
-    $newPrice = $_POST["edit-price"];
+    $newQuantity = intval($_POST["edit-Quantity"]); 
+    $newPrice = floatval($_POST["edit-price"]);
 
-    // Database connection code (similar to your previous code)
+    // Database connection
     $host = "localhost";
     $username = "root";
     $password = "";
@@ -20,31 +23,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Prepare the SQL statement with placeholders for all the fields
-    $sql = "UPDATE product SET ProductName = ?, ProductType = ?, Color = ?, Description = ?, Price = ? WHERE ProductID = ?";
+    // Fetch current Description from the database
+    $stmtFetch = $conn->prepare("SELECT Description FROM product WHERE ProductID = ?");
+    $stmtFetch->bind_param("i", $productId);
+    $stmtFetch->execute();
+    $stmtFetch->bind_result($currentDescription);
+    $stmtFetch->fetch();
+    $stmtFetch->close();
 
-    // Create a prepared statement
+    // Update main `product` table
+    $sql = "UPDATE product SET 
+                ProductName = ?, 
+                ProductType = ?, 
+                Color = ?, 
+                Quantity = ?, 
+                Price = ? 
+            WHERE ProductID = ?";
+
     $stmt = $conn->prepare($sql);
 
     if ($stmt === false) {
-        die("Error in prepared statement: " . $conn->error);
-    }
-
-    // Bind parameters and execute the query
-    $stmt->bind_param("ssssdi", $newProductName, $newProductType, $newColor, $newDescription, $newPrice, $productId);
-
-    if ($stmt->execute()) {
-        // Query executed successfully
-        echo "Product details updated successfully!";
+        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Error in prepared statement for product'];
         header("Location: Product.php");
         exit();
-    } else {
-        // Query execution failed
-        echo "Error updating product details: " . $stmt->error;
     }
 
-    // Close the prepared statement and database connection
+    $stmt->bind_param(
+        "ssiddi", 
+        $newProductName, 
+        $newProductType, 
+        $newColor, 
+        $newQuantity, 
+        $newPrice, 
+        $productId
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Error updating product details: ' . $stmt->error];
+        $stmt->close();
+        $conn->close();
+        header("Location: Product.php");
+        exit();
+    }
     $stmt->close();
+
+    // Now update `theinventory` table with same logic
+    $sql_inventory = "UPDATE theinventory SET
+                        ProductName = ?, 
+                        ProductType = ?, 
+                        Color = ?, 
+                        Quantity = ?, 
+                        Price = ?
+                      WHERE ProductID = ?";
+
+    $stmt_inventory = $conn->prepare($sql_inventory);
+
+    if ($stmt_inventory === false) {
+        $_SESSION['alert'] = ['type' => 'danger', 'message' => 'Error preparing inventory update'];
+        $conn->close();
+        header("Location: Product.php");
+        exit();
+    }
+
+    $stmt_inventory->bind_param(
+        "ssiddi",
+        $newProductName,
+        $newProductType,
+        $newColor,
+        $newQuantity,
+        $newPrice,
+        $productId
+    );
+
+    if (!$stmt_inventory->execute()) {
+        $_SESSION['alert'] = ['type' => 'warning', 'message' => 'Inventory not updated: ' . $stmt_inventory->error];
+    } else {
+        $_SESSION['alert'] = ['type' => 'success', 'message' => 'Product and Inventory updated successfully'];
+    }
+
+    $stmt_inventory->close();
     $conn->close();
+
+    // Redirect back
+    header("Location: Product.php");
+    exit();
 }
 ?>

@@ -64,6 +64,11 @@ include("navigation.php");
             color: #ff0000;
             margin-bottom: 10px;
         }
+
+        .success {
+            color: green;
+            margin-bottom: 10px;
+        }
     </style>
 
     <?php
@@ -78,34 +83,34 @@ include("navigation.php");
         die("Connection failed: " . mysqli_connect_error());
     }
 
-    $productID = $productName = $productType = $color = $description = $price = $quantity = $imageURL = "";
+    $productName = $productType = $color = $description = $price = $quantity = $imageURL = "";
     $error = "";
+    $successMessage = "";
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Validate and sanitize form input
-        $productID = mysqli_real_escape_string($conn, $_POST["productID"]);
+        $productID = intval($_POST["productID"]);
         $productName = mysqli_real_escape_string($conn, $_POST["productName"]);
         $productType = mysqli_real_escape_string($conn, $_POST["productType"]);
         $color = mysqli_real_escape_string($conn, $_POST["color"]);
         $description = mysqli_real_escape_string($conn, $_POST["description"]);
         $price = floatval($_POST["price"]);
-        $quantity = intval($_POST["quantity"]); // Get quantity as an integer
+        $quantity = intval($_POST["quantity"]);
 
         // Handle image upload
         if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
-            $targetDir = "uploads/"; // Directory to store uploaded images
+            $targetDir = "uploads/";
             if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0777, true); // Create directory if it doesn't exist
+                mkdir($targetDir, 0777, true);
             }
             $fileName = basename($_FILES["image"]["name"]);
             $targetFilePath = $targetDir . $fileName;
             $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
 
-            // Allow only certain file formats
             $allowedTypes = ["jpg", "jpeg", "png", "gif"];
             if (in_array($fileType, $allowedTypes)) {
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-                    $imageURL = $targetFilePath; // Store the file path in the database
+                    $imageURL = $targetFilePath;
                 } else {
                     $error = "Error uploading image.";
                 }
@@ -117,19 +122,27 @@ include("navigation.php");
         }
 
         if ($error === "") {
-            // Insert data into the database
-            $sqlInsert = "INSERT INTO Product (ProductID, ProductName, ProductType, Color, Description, Price, Quantity, ImageURL)
+            // Insert into product table
+            $sqlInsertProduct = "INSERT INTO Product (ProductID, ProductName, ProductType, Color, Description, Price, Quantity, ImageURL)
                           VALUES ('$productID', '$productName', '$productType', '$color', '$description', $price, $quantity, '$imageURL')";
 
-            if (mysqli_query($conn, $sqlInsert)) {
-                $successMessage = "Product added successfully!";
+            if (mysqli_query($conn, $sqlInsertProduct)) {
+                // Now insert into theinventory table
+                $sqlInsertInventory = "INSERT INTO theinventory (ProductID, ProductName, ProductType, Color, Description, Quantity, Price, EntryTimestamp)
+                              VALUES ('$productID', '$productName', '$productType', '$color', '$description', $quantity, $price, NOW())";
+
+                if (mysqli_query($conn, $sqlInsertInventory)) {
+                    $successMessage = "Product and inventory record added successfully!";
+                } else {
+                    $error = "Error adding inventory record: " . mysqli_error($conn);
+                }
             } else {
                 $error = "Error adding product: " . mysqli_error($conn);
             }
         }
-    }
 
-    mysqli_close($conn);
+        mysqli_close($conn);
+    }
     ?>
 
     <div class="form-container">
@@ -147,7 +160,10 @@ include("navigation.php");
             <input type="text" name="color" required>
 
             <label for="description">Description:</label>
-            <textarea name="description" required style="width: 100%;"></textarea>
+            <select name="description" required>
+                <option value="">-- Select Size --</option>
+                <option value="4ft x 8ft x 18mm">4ft x 8ft x 18mm</option>
+            </select>
 
             <label for="price">Price:</label>
             <input type="number" name="price" step="0.01" required><br>
@@ -162,11 +178,11 @@ include("navigation.php");
         </form>
 
         <?php
-        if (isset($successMessage)) {
-            echo "<p style='color: green;'>$successMessage</p>";
+        if (!empty($successMessage)) {
+            echo "<p class='success'>$successMessage</p>";
         }
-        if ($error !== "") {
-            echo "<p>Error: $error</p>";
+        if (!empty($error)) {
+            echo "<p class='error'>$error</p>";
         }
         ?>
     </div>
@@ -175,8 +191,6 @@ include("navigation.php");
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
-
 </div>
 </body>
-
 </html>

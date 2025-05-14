@@ -4,7 +4,7 @@ include("navigation.php");
 
 <style>
     body {
-        background-color: rgb(255, 255, 255);
+        background-color: #f8f9fa;
         margin: 0;
     }
 
@@ -27,11 +27,10 @@ include("navigation.php");
 
     th,
     td {
-        padding: 10px;
-        text-align: left;
+        padding: 12px;
+        text-align: center;
         border-bottom: 1px solid #ddd;
         color: white;
-        text-align: center;
     }
 
     th {
@@ -39,6 +38,7 @@ include("navigation.php");
         color: white;
         position: sticky;
         top: 0;
+        z-index: 1;
     }
 
     tr:hover {
@@ -56,32 +56,53 @@ include("navigation.php");
     .search-container {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        justify-content: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
     }
 
-    .search-container input[type="text"] {
+    .search-container input[type="text"],
+    .search-container input[type="date"] {
         width: 200px;
         margin-right: 10px;
-        padding: 5px;
+        padding: 6px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
     }
 
     .search-container button {
         background-color: #475053;
         color: white;
         border: none;
-        padding: 5px 10px;
+        padding: 6px 12px;
         cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .search-container select {
+        padding: 6px;
+        margin-right: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .export-btn {
+        margin-left: 10px;
+        background-color: #28a745;
+    }
+
+    .export-btn:hover {
+        background-color: #218838;
     }
 </style>
 
 <?php
 // Database connection parameters
-$host = "localhost"; // Replace with your database host
-$username = "root"; // Replace with your database username
-$password = ""; // Replace with your database password
+$host = "localhost";
+$username = "root";
+$password = "";
 $database = "zenfinityaccount";
 
-// Create a database connection
 $conn = mysqli_connect($host, $username, $password, $database);
 
 if (!$conn) {
@@ -90,69 +111,108 @@ if (!$conn) {
 ?>
 
 <div id="content" class="p-4 p-md-5 pt-5">
-    <h2 class="mb-4">Inventory</h2>
+    <h2 class="mb-4">Inventory History</h2>
 
-    <!-- Search bar for ProductID -->
+    <!-- Search bar -->
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search by ProductID...">
+        <select id="searchCriteria">
+            <option value="ProductID">Product ID</option>
+            <option value="ProductName">Product Name</option>
+            <option value="EntryTimestamp">Date</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search...">
         <button onclick="searchInventory()">Search</button>
+        <!-- <button class="export-btn" onclick="exportToCSV()">Export CSV</button> -->
     </div>
 
     <div class="table-container">
         <?php
-        // Check if a search query is provided
+        // Build SQL query based on criteria
         if (isset($_GET['criteria']) && isset($_GET['query'])) {
-            $searchCriteria = $_GET['criteria'];
-            $searchQuery = $_GET['query'];
+            $searchCriteria = mysqli_real_escape_string($conn, $_GET['criteria']);
+            $searchQuery = mysqli_real_escape_string($conn, $_GET['query']);
 
             if ($searchCriteria === 'EntryTimestamp') {
                 $sql = "SELECT * FROM theinventory WHERE DATE(EntryTimestamp) LIKE '%$searchQuery%' ORDER BY EntryTimestamp DESC";
             } else {
-                $sql = "SELECT * FROM theinventory WHERE $searchCriteria LIKE '%$searchQuery%' ORDER BY EntryTimestamp DESC";
+                $sql = "SELECT * FROM theinventory WHERE `$searchCriteria` LIKE '%$searchQuery%' ORDER BY EntryTimestamp DESC";
             }
         } else {
             $sql = "SELECT * FROM theinventory ORDER BY EntryTimestamp DESC";
         }
 
         $result = mysqli_query($conn, $sql);
-
-        if (mysqli_num_rows($result) > 0) {
-            echo "<table border='1'>";
-            echo "<tr><th>ProductID</th><th>ProductName</th><th>Product Type</th><th>Color</th><th>Description</th><th>Quantity</th><th>Price</th><th>EntryDate</th><th>EntryTime</th></tr>";
-            echo "<tbody>";
-
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "<tr>";
-                echo "<td>" . $row['ProductID'] . "</td>";
-                echo "<td>" . $row['ProductName'] . "</td>";
-                echo "<td>" . $row['ProductType'] . "</td>";
-                echo "<td>" . $row['Color'] . "</td>";
-                echo "<td>" . $row['Description'] . "</td>";
-                echo "<td>" . $row['Quantity'] . "</td>";
-                echo "<td>₱" . number_format($row['Price'], 2, '.', ',') . "</td>";
-
-                $entryTimestamp = strtotime($row['EntryTimestamp']);
-                $entryDate = date("Y-m-d", $entryTimestamp);
-                $entryTime = date("h:i A", $entryTimestamp);
-
-                echo "<td>" . $entryDate . "</td>";
-                echo "<td>" . $entryTime . "</td>";
-                echo "</tr>";
-            }
-        } else {
-            echo "<p>No data available in theinventory table.</p>";
-        }
         ?>
+        <table border='1'>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Color</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Entry Date</th>
+                <th>Entry Time</th>
+            </tr>
+            <tbody>
+                <?php
+                if (mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($row['ProductID']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['ProductName']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['ProductType']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['Color']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['Description']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['Quantity']) . "</td>";
+                        echo "<td>₱" . number_format($row['Price'], 2, '.', ',') . "</td>";
+
+                        $entryTimestamp = strtotime($row['EntryTimestamp']);
+                        $entryDate = date("Y-m-d", $entryTimestamp);
+                        $entryTime = date("h:i A", $entryTimestamp);
+
+                        echo "<td>$entryDate</td>";
+                        echo "<td>$entryTime</td>";
+                        echo "</tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='9'>No records found.</td></tr>";
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
     function searchInventory() {
         var searchInput = document.getElementById("searchInput").value.trim();
-        var searchCriteria = 'ProductID';
+        var searchCriteria = document.getElementById("searchCriteria").value;
 
-        // Reload the page with search parameters
-        window.location.href = "?criteria=" + searchCriteria + "&query=" + searchInput;
+        window.location.href = "?criteria=" + encodeURIComponent(searchCriteria) + "&query=" + encodeURIComponent(searchInput);
+    }
+
+    function exportToCSV() {
+        var csv = "ProductID,ProductName,ProductType,Color,Description,Quantity,Price,EntryDate,EntryTime\n";
+
+        var rows = document.querySelectorAll("table tr");
+
+        for (var i = 1; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td");
+
+            for (var j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText.trim());
+            }
+
+            csv += row.join(",") + "\n";
+        }
+
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "inventory_export.csv";
+        link.click();
     }
 </script>
 
@@ -161,7 +221,5 @@ if (!$conn) {
 <script src="js/bootstrap.min.js"></script>
 <script src="js/main.js"></script>
 
-</div>
 </body>
-
 </html>

@@ -1,32 +1,20 @@
 <?php
 include("navigation.php");
 ?>
-
-<div id="content" class="p-4 p-md-5 pt-5">
-    <h2 class="mb-4">Product List</h2>
-    <!-- Add a legend section for the quantity borders -->
-    <div class="legend-container">
-        <h4>Legend:</h4>
-        <div class="legend-item">
-            <div class="legend-color red-border"></div>
-            <div class="legend-text">Quantity &lt; 30</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color yellow-border"></div>
-            <div class="legend-text">Quantity: 30 - 50</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color green-border"></div>
-            <div class="legend-text">Quantity &gt; 50</div>
-        </div>
-    </div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-GTVnK6eIfM6N1Zt0a3Pm9eU3OyFEL+X+R5pJTAUjH4ZbwU0k5ENZMe8O3BzEO9Z1"
+      crossorigin="anonymous">
     <style>
         body {
-            background-color: rgb(255, 255, 255);
+            background-color: #fff;
         }
 
-        /* CSS styles for the legend */
         .legend-container {
             margin-top: 20px;
             padding: 10px;
@@ -48,7 +36,6 @@ include("navigation.php");
             border-radius: 5px;
         }
 
-        /* Define colors for the legend items */
         .legend-color.red-border {
             background-color: red;
         }
@@ -65,17 +52,10 @@ include("navigation.php");
             font-size: 14px;
         }
 
-        .posted-data {
-            margin-left: 50px;
-            margin-right: 50px;
-        }
-
         .product-container {
             display: flex;
             flex-wrap: wrap;
-            /* Allow boxes to wrap to the next line */
             justify-content: flex-start;
-            /* Start from left to right */
         }
 
         .product-box {
@@ -84,25 +64,18 @@ include("navigation.php");
             margin: 10px;
             border-radius: 5px;
             width: 350px;
-            /* Adjust the width as needed */
             height: 410px;
-            /* Adjust the height as needed */
             text-align: center;
             color: white;
             display: flex;
             flex-direction: column;
-            /* Stack the inner elements vertically */
             justify-content: space-between;
-            /* Add space between the inner elements */
         }
 
         .product-info {
             font-size: 15px;
-            /* Adjust the font size as needed */
             text-align: left;
-            /* Align the text to the left within product-info */
             padding: 5px;
-            /* Add padding to create space around the text */
         }
 
         .red-border {
@@ -119,7 +92,6 @@ include("navigation.php");
 
         h3 {
             font-size: 20px;
-            /* Adjust the title font size as needed */
             font-weight: bold;
         }
 
@@ -135,7 +107,6 @@ include("navigation.php");
             justify-content: space-between;
         }
 
-        /* Add CSS for alerts */
         .alert-container {
             position: fixed;
             top: 20px;
@@ -155,8 +126,30 @@ include("navigation.php");
             opacity: 1;
         }
     </style>
+</head>
+<body>
 
+<div id="content" class="p-4 p-md-5 pt-5">
+    <h2 class="mb-4">Product List</h2>
 
+    <!-- Legend -->
+    <div class="legend-container">
+        <h4>Legend:</h4>
+        <div class="legend-item">
+            <div class="legend-color red-border"></div>
+            <div class="legend-text">Quantity < 30</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color yellow-border"></div>
+            <div class="legend-text">Quantity: 30 - 50</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color green-border"></div>
+            <div class="legend-text">Quantity > 50</div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
     <div class="alert-container" id="alert-container"></div>
 
     <?php
@@ -164,24 +157,17 @@ include("navigation.php");
     $username = "root";
     $password = "";
     $database = "zenfinityaccount";
-
     $conn = new mysqli($host, $username, $password, $database);
-
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-
     $sql = "SELECT ProductID, ProductName, ProductType, Color, Description, Quantity, Price FROM product";
-
     $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        echo '<div class="product-container">'; // Start product container
-        while ($row = $result->fetch_assoc()) {
-            $quantity = (int)$row['Quantity']; // Convert quantity to an integer
+    ?>
+    <div class="product-container">
+        <?php while ($row = $result->fetch_assoc()):
+            $quantity = (int)$row['Quantity'];
             $borderClass = '';
-
-            // Determine the border class based on quantity
             if ($quantity <= 29) {
                 $borderClass = 'red-border';
             } elseif ($quantity >= 30 && $quantity <= 50) {
@@ -189,135 +175,162 @@ include("navigation.php");
             } else {
                 $borderClass = 'green-border';
             }
+        ?>
+            <div class="product-box <?= $borderClass ?>">
+                <h3><?= $row['ProductName'] ?></h3>
+                <div class="product-info">
+                    <p><strong>Product ID:</strong> <?= $row['ProductID'] ?></p>
+                    <p>Product Type: <?= $row['ProductType'] ?></p>
+                    <p>Color: <?= $row['Color'] ?></p>
+                    <p>Description: <?= $row['Description'] ?></p>
+                    <p>Quantity: <?= $row['Quantity'] ?></p>
+                    <p>Price: ₱<?= number_format($row['Price'], 2, '.', ',') ?></p>
+                    <div class="button-container">
+                        <button class="edit-button btn btn-success" data-product-id="<?= $row['ProductID'] ?>" data-toggle="modal" data-target="#editModal">
+                            Edit
+                        </button>
+                        <form action="delete_product.php" method="post" class="delete-form" onsubmit="return confirmDelete();">
+                            <input type="hidden" name="product_id" value="<?= $row['ProductID'] ?>">
+                            <input type="submit" value="Archive" class="btn btn-light">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endwhile; ?>
+    </div>
 
-            echo '<div class="product-box ' . $borderClass . '">';
-            echo '<h3>' . $row['ProductName'] . '</h3>';
-            echo '<div class="product-info">';
-            echo '<p><strong>Product ID:</strong> ' . $row['ProductID'] . '</p>';
-            echo '<p>Product Type: ' . $row['ProductType'] . '</p>';
-            echo '<p>Color: ' . $row['Color'] . '</p>';
-            echo '<p>Description: ' . $row['Description'] . '</p>';
-            echo '<p>Quantity: ' . $row['Quantity'] . '</p>';
-            echo '<p>Price: ₱' . number_format($row['Price'], 2, '.', ',') . '</p>';
+    <!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="update_product.php" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="product_id" id="edit-product-id">
 
-            // Container for buttons
-            echo '<div class="button-container">';
+                    <label for="edit-product-name">Product Name:</label>
+                    <input type="text" class="form-control" name="edit-product-name" id="edit-product-name"><br>
 
-            // Add an "Edit" button for each product
-            echo '<button class="edit-button" data-product-id="' . $row['ProductID'] . '">Edit</button>';
+                    <label for="edit-product-type">Product Type:</label>
+                    <input type="text" class="form-control" name="edit-product-type" id="edit-product-type"><br>
 
-            // Add a form for deleting each product with a confirmation dialog
-            echo '<form action="delete_product.php" method="post" class="delete-form" onsubmit="return confirmDelete();">';
-            echo '<input type="hidden" name="product_id" value="' . $row['ProductID'] . '">';
-            echo '<input type="submit" value="Archive">';
-            echo '</form>';
+                    <label for="edit-color">Color:</label>
+                    <input type="text" class="form-control" name="edit-color" id="edit-color"><br>
 
-            echo '</div>'; // Close button-container
+                    <!-- Description Input -->
+                    <label for="edit-description">Description:</label>
+                    <input type="text" class="form-control" name="edit-description" id="edit-description" value="4ft x 8ft x18mm" readonly>
+                    <br>
 
-            echo '</div>'; // Close product-info
-            echo '</div>'; // Close product-box
+                    <label for="edit-quantity">Quantity:</label>
+                    <input type="number" class="form-control" name="edit-Quantity" id="edit-quantity" min="0" step="1"><br>
 
-            // Create an edit form for each product
-            echo '<div class="edit-form" style="display:none;" id="edit-form-' . $row['ProductID'] . '">';
-            echo '<h3>Edit Product</h3>';
-            echo '<form action="update_product.php" method="post">';
-            echo '<input type="hidden" name="product_id" value="' . $row['ProductID'] . '">';
-            echo '<label for="edit-product-name">Product Name:</label>';
-            echo '<input type="text" name="edit-product-name" id="edit-product-name" value="' . htmlspecialchars($row['ProductName']) . '"><br>';
-            echo '<label for="edit-product-type">Product Type:</label>';
-            echo '<input type="text" name="edit-product-type" id="edit-product-type" value="' . htmlspecialchars($row['ProductType']) . '"><br>';
-            echo '<label for="edit-color">Color:</label>';
-            echo '<input type="text" name="edit-color" id="edit-color" value="' . htmlspecialchars($row['Color']) . '"><br>';
-            echo '<label for="edit-description">Description:</label>';
-            echo '<input type="text" name="edit-description" id="edit-description" value="' . htmlspecialchars($row['Description']) . '"><br>';
-            echo '<label for="edit-price">Price:</label>';
-            echo '<input type="text" name="edit-price" id="edit-price" value="' . $row['Price'] . '"><br>';
-            // Quantity is not editable
-            echo '<input type="submit" value="Save">';
-            echo '</form>';
-            echo '</div>';
-        }
-        echo '</div>'; // Close product container
-    } else {
-        echo 'No data found.';
-    }
-    ?>
+                    <label for="edit-price">Price:</label>
+                    <input type="text" class="form-control" name="edit-price" id="edit-price">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-    <script>
-        function confirmDelete() {
-            return confirm("Are you sure you want to Archive this product?");
-        }
-    </script>
+</div>
 
-    <script src="js/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $(".edit-button").click(function() {
-                // Get the product ID from the data attribute
-                var productId = $(this).data("product-id");
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
+<!-- Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
-                // Hide all other edit forms (if any)
-                $(".edit-form").hide();
+<script>
+    $(document).ready(function () {
+        // Load product data into modal
+        $('.edit-button').on('click', function () {
+            var productId = $(this).data('product-id');
+            var productName = $(this).closest('.product-box').find('h3').text();
+            var productType = $(this).closest('.product-box').find('p:nth-child(2)').text().replace('Product Type: ', '');
+            var color = $(this).closest('.product-box').find('p:nth-child(3)').text().replace('Color: ', '');
+            var description = $(this).closest('.product-box').find('p:nth-child(4)').text().replace('Description: ', '');
+            var quantity = $(this).closest('.product-box').find('p:nth-child(5)').text().replace('Quantity: ', '');
+            var price = $(this).closest('.product-box').find('p:nth-child(6)').text().replace('Price: ₱', '').replaceAll(',', '');
 
-                // Show the edit form for the clicked product
-                $("#edit-form-" + productId).show();
-            });
+            $('#edit-product-id').val(productId);
+            $('#edit-product-name').val(productName);
+            $('#edit-product-type').val(productType);
+            $('#edit-color').val(color);
+            $('#edit-description').val("4ft x 8ft x18mm");
+            $('#edit-quantity').val(quantity);
+            $('#edit-price').val(price);
         });
-    </script>
 
-    <script>
-        document.getElementById("enterButton").addEventListener("click", function(event) {
-            var qrData = document.getElementById("qrData").value.trim(); // Get and trim QR data input
+        // Handle form submission via AJAX to prevent full page reload
+        $('form[action="update_product.php"]').submit(function(e) {
+            e.preventDefault(); // Prevent default form behavior
 
-            if (qrData !== "") {
-                // Assuming the quantity is included in the QR data, extract it
-                var dataArray = qrData.split(',');
-                if (dataArray.length >= 7) { // Assuming quantity is the 7th element in the QR data
-                    var quantity = dataArray[6]; // Extract the quantity
+            var formData = $(this).serialize();
 
-                    // Send the data to the server using AJAX or form submission
-                    // You can display the success or error message based on the server's response
+            $.post("update_product.php", formData, function(response) {
+                location.reload(); // ← Optional: Reload page to show changes
+                // OR BETTER: Update specific product box dynamically
+                var productId = $('#edit-product-id').val();
+                var newDesc = $('#edit-description').val();
+                var newQty = $('#edit-quantity').val();
 
-                    // For demonstration purposes, we'll simulate a server response
-                    var serverResponse = true; // Change this to the actual server response
+                // Find the corresponding product box and update its content
+                var $box = $('.product-box').filter(function() {
+                    return $(this).find('h3').text() === $('#edit-product-name').val();
+                }).first();
 
-                    if (serverResponse) {
-                        displayAlert("success", "Added Successfully!");
+                if ($box.length > 0) {
+                    $box.find('p:nth-child(4)').text('Description: ' + newDesc);
+                    $box.find('p:nth-child(5)').text('Quantity: ' + newQty);
+
+                    // Optional: Update border color based on quantity
+                    var qtyNum = parseInt(newQty);
+                    var $infoBox = $box.find('.product-info');
+
+                    $box.removeClass('red-border yellow-border green-border');
+
+                    if (qtyNum <= 29) {
+                        $box.addClass('red-border');
+                    } else if (qtyNum >= 30 && qtyNum <= 50) {
+                        $box.addClass('yellow-border');
                     } else {
-                        displayAlert("danger", "Error adding data.");
+                        $box.addClass('green-border');
                     }
 
-                    // Prevent the form from submitting (you can remove this line if not needed)
-                    event.preventDefault();
-                } else {
-                    event.preventDefault();
+                    // Show success alert
+                    displayAlert('success', 'Product updated successfully!');
                 }
-            }
+            });
         });
+    });
 
-        // Function to display an alert
-        function displayAlert(type, message) {
-            var alertContainer = document.getElementById("alert-container");
-            var alertElement = document.createElement("div");
+    function confirmDelete() {
+        return confirm("Are you sure you want to Archive this product?");
+    }
 
-            alertElement.className = "alert alert-" + type + " alert-dismissible show";
-            alertElement.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Info!</strong> ' + message;
+    function displayAlert(type, message) {
+        var alertContainer = document.getElementById("alert-container");
+        var alertElement = document.createElement("div");
+        alertElement.className = "alert alert-" + type + " alert-dismissible show";
+        alertElement.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Info!</strong> ' + message;
+        alertContainer.innerHTML = '';
+        alertContainer.appendChild(alertElement);
+        setTimeout(function () {
+            alertElement.classList.remove("show");
+        }, 5000);
+    }
+</script>
 
-            alertContainer.innerHTML = ''; // Clear any existing alerts
-            alertContainer.appendChild(alertElement);
-
-            // Automatically hide the alert after 5 seconds
-            setTimeout(function() {
-                alertElement.classList.remove("show");
-            }, 5000);
-        }
-    </script>
-
-    <script src="js/jquery.min.js"></script>
-    <script src="js/popper.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
-</div>
 </body>
-
 </html>
